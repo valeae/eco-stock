@@ -81,19 +81,15 @@ El frontend estará disponible en `http://localhost:3000` o el puerto que indiqu
 ---
 
 ## 🤝 **Contribuir**  
-Si deseas contribuir, revisa la [Wiki](https://github.com/valeae/eco-stock/wiki) para conocer las pautas y mejores prácticas.  
+Si deseas contribuir, revisa la [Guía de Contribución](https://github.com/valeae/eco-stock/wiki/Gu%C3%ADa-de-Contribuci%C3%B3n) para conocer las pautas y mejores prácticas.  
 
 ---
 
 ## Integrantes
 
-![https://avatars.githubusercontent.com/u/69222427?v=4](https://github.com/valeae)
-
-![https://avatars.githubusercontent.com/u/160869357?v=4](https://github.com/Ema-Palacio28)
-
-![https://avatars.githubusercontent.com/u/179845125?v=4](https://github.com/valentinaC15)
-
-![https://avatars.githubusercontent.com/u/158776351?v=4](https://github.com/alxate)
-
-
-
+<a href="https://github.com/valeae/eco-stock/graphs/contributors">  
+  <img src="https://avatars.githubusercontent.com/u/69222427?v=4" alt="Descripción de la imagen" width="50" height="50">
+  <img src="https://avatars.githubusercontent.com/u/160869357?v=4" alt="Descripción de la imagen" width="50" height="50">
+  <img src="https://avatars.githubusercontent.com/u/179845125?v=4" alt="Descripción de la imagen" width="50" height="50">
+  <img src="https://avatars.githubusercontent.com/u/158776351?v=4" alt="Descripción de la imagen" width="50" height="50">
+</a>
