@@ -1,0 +1,31 @@
+# Ignorar node_modules en frontend
+eco-stock-frontend/node_modules/
+
+# Ignorar entorno virtual en backend
+eco-stock-backend/venv/
+
+# Ignorar archivos de configuración sensibles
+.env
+.env.local
+.env.*.local
+
+# Ignorar caché y archivos temporales
+**/__pycache__/
+**/*.log
+.DS_Store
+Thumbs.db
+
+# Ignorar archivos de compilación de Next.js
+eco-stock-frontend/.next/
+eco-stock-frontend/out/
+eco-stock-frontend/.vercel/
+
+# Ignorar dependencias de Python
+eco-stock-backend/__pycache__/
+eco-stock-backend/*.pyc
+eco-stock-backend/*.pyo
+
+# Ignorar dependencias de npm y lockfiles innecesarios
+eco-stock-frontend/npm-debug.log*
+eco-stock-frontend/yarn-debug.log*
+eco-stock-frontend/yarn-error.log*
