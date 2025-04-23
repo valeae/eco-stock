@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'main_page',
     'register',
     'reports',
-    'suppliers'
+    'suppliers',
+    'user_register',
 ]
 
 MIDDLEWARE = [
