@@ -27,37 +27,37 @@ export default function Sidebar() {
   });
 
   const isInicioSubpath = [
-    "/inicio",
-    "/inicio/detalles-productos",
-    "/inicio/orden-ventas",
-    "/inicio/top-productos",
+    "/dashboard/inicio",
+    "/dashboard/inicio/detalles-productos",
+    "/dashboard/inicio/orden-ventas",
+    "/dashboard/inicio/top-productos",
   ].some((path) => pathname.startsWith(path));
 
   const isRegistroSubpath = [
-    "/registro",
-    "/registro/registro-producto",
+    "/dashboard/registro",
+    "/dashboard/registro/registro-producto",
   ].some((path) => pathname.startsWith(path));
 
   const isInventarioSubpath = [
-    "/inventario",
-    "/inventario/entradas",
-    "/inventario/salidas",
-    "/inventario/historial",
+    "/dashboard/inventario",
+    "/dashboard/inventario/entradas",
+    "/dashboard/inventario/salidas",
+    "/dashboard/inventario/historial",
   ].some((path) => pathname.startsWith(path));
 
   const isReportesSubpath = [
-    "/reportes",
-    "/reportes/dia",
-    "/reportes/semana",
-    "/reportes/mensual",
-    "/reportes/producto-categoria",
-    "/reportes/periodo-tiempo",
+    "/dashboard/reportes",
+    "/dashboard/reportes/dia",
+    "/dashboard/reportes/semana",
+    "/dashboard/reportes/mensual",
+    "/dashboard/reportes/producto-categoria",
+    "/dashboard/reportes/periodo-tiempo",
   ].some((path) => pathname.startsWith(path));
 
   const isProveedoresSubpath = [
-    "/proveedores",
-    "/proveedores/distribuidores",
-    "/proveedores/historial",
+    "/dashboard/proveedores",
+    "/dashboard/proveedores/distribuidores",
+    "/dashboard/proveedores/historial",
   ].some((path) => pathname.startsWith(path));
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function Sidebar() {
                 href={href}
                 className={`block py-2 px-3 rounded-md text-sm ${
                   pathname === href
-                    ? "text-heading-DEFAULT font-medium bg-muted-light"
+                    ? "text-heading-DEFAULT font-small bg-muted-light"
                     : "text-white hover:bg-muted-light"
                 }`}
               >
@@ -111,7 +111,7 @@ export default function Sidebar() {
   return (
     <div className="h-full w-64 bg-primary border-r border-muted-DEFAULT flex flex-col">
       <div className="flex items-center justify-center border-b border-muted-light">
-        <Link href="/" className="inline-block">
+        <Link href="/dashboard" className="inline-block">
           <Image 
             src="/images/logo.png" 
             alt="EcoStock" 
@@ -130,10 +130,10 @@ export default function Sidebar() {
           <li>
             <button
               type="button"
-              onClick={() => handleSectionClick("inicio", "/inicio")}
+              onClick={() => handleSectionClick("inicio", "/dashboard/inicio")}
               className={`flex items-center w-full p-3 rounded-md transition-colors ${
                 isInicioSubpath
-                  ? "bg-accent-light text-heading-DEFAULT font-medium"
+                  ? "bg-accent-light text-heading-DEFAULT font-small"
                   : "text-white hover:bg-accent-light"
               }`}
             >
@@ -168,9 +168,9 @@ export default function Sidebar() {
               </svg>
             </button>
             {renderSubmenu("inicio", [
-              { href: "/inicio/detalles-productos", text: "Detalles de productos" },
-              { href: "/inicio/orden-ventas", text: "Orden de ventas" },
-              { href: "/inicio/top-productos", text: "Top de productos" },
+              { href: "/dashboard/inicio/detalles-productos", text: "Detalles de productos" },
+              { href: "/dashboard/inicio/orden-ventas", text: "Orden de ventas" },
+              { href: "/dashboard/inicio/top-productos", text: "Top de productos" },
             ])}
           </li>
 
@@ -182,7 +182,7 @@ export default function Sidebar() {
               onClick={() => handleSectionClick("registro", "/registro")}
               className={`flex items-center w-full p-3 rounded-md transition-colors ${
                 isRegistroSubpath
-                  ? "bg-accent-light text-heading-DEFAULT font-medium"
+                  ? "bg-accent-light text-heading-DEFAULT font-small"
                   : "text-white hover:bg-accent-light"
               }`}
             >
@@ -216,7 +216,7 @@ export default function Sidebar() {
               onClick={() => handleSectionClick("inventario", "/inventario")}
               className={`flex items-center w-full p-3 rounded-md transition-colors ${
                 isInventarioSubpath
-                  ? "bg-accent-light text-heading-DEFAULT font-medium"
+                  ? "bg-accent-light text-heading-DEFAULT font-small"
                   : "text-white hover:bg-accent-light"
               }`}
             >
@@ -249,7 +249,7 @@ export default function Sidebar() {
               onClick={() => handleSectionClick("reportes", "/reportes")}
               className={`flex items-center w-full p-3 rounded-md transition-colors ${
                 isReportesSubpath
-                  ? "bg-accent-light text-heading-DEFAULT font-medium"
+                  ? "bg-accent-light text-heading-DEFAULT font-small"
                   : "text-white hover:bg-accent-light"
               }`}
             >
@@ -283,7 +283,7 @@ export default function Sidebar() {
               onClick={() => handleSectionClick("proveedores", "/proveedores")}
               className={`flex items-center w-full p-3 rounded-md transition-colors ${
                 isProveedoresSubpath
-                  ? "bg-accent-light text-heading-DEFAULT font-medium"
+                  ? "bg-accent-light text-heading-DEFAULT font-small"
                   : "text-white hover:bg-accent-light"
               }`}
             >
