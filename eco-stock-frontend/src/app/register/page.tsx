@@ -5,12 +5,11 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 //components
-import Header from '@/components/header';
+import Header from '@/components/logo-header';
 
 export default function Registro() {
   const [nombreCompleto, setNombreCompleto] = useState('');
   const [correo, setCorreo] = useState('');
-  const [telefono, setTelefono] = useState('');
   const [contrasena, setContrasena] = useState('');
 
   return (
@@ -73,20 +72,6 @@ export default function Registro() {
                   focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
               />
 
-              {/* Campo Teléfono */}
-              <input
-                id="telefono"
-                name="telefono"
-                type="tel"
-                value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
-                placeholder="Teléfono"
-                required
-                className="appearance-none rounded-md w-full px-3 py-3 
-                  border border-transparent bg-muted text-heading placeholder-gray-500
-                  focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
-              />
-
               {/* Campo Contraseña */}
               <input
                 id="contrasena"
@@ -121,7 +106,7 @@ export default function Registro() {
                 ¿Ya tienes una cuenta?{' '}
                 <Link
                   href="/login"
-                  className="font-medium text-primary hover:text-white transition-colors"
+                  className="font-medium text-white hover:text-primary transition-colors"
                 >
                   Iniciar sesión
                 </Link>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 //components
-import Header from '@/components/header';
+import Header from '@/components/logo-header';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -102,7 +102,7 @@ export default function Login() {
                 <div className="text-sm">
                   <Link 
                     href="/forgot-password" 
-                    className="font-medium text-primary hover:text-white transition-colors"
+                    className="font-medium text-white hover:text-primary transition-colors"
                   >
                     ¿Olvidaste tu contraseña?
                   </Link>
@@ -129,7 +129,7 @@ export default function Login() {
                 ¿No tienes una cuenta?{' '}
                 <Link 
                   href="/register" 
-                  className="font-medium text-primary hover:text-white transition-colors"
+                  className="font-medium text-white hover:text-primary transition-colors"
                 >
                   Registrarse
                 </Link>
