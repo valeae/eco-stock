@@ -10,9 +10,11 @@ import {
   Package,
   BarChart2,
   Truck,
+  Layers,
+  Settings,
 } from "lucide-react";
 
-//Types 
+// Types 
 import type { MenuKey, ExpandedMenus } from "@/types/menu";
 
 export default function Sidebar() {
@@ -20,28 +22,39 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [expandedMenus, setExpandedMenus] = useState<ExpandedMenus>({
     inicio: false,
-    registro: false,
+    catalogos: false,
+    productos: false,
     inventario: false,
     reportes: false,
     proveedores: false,
+    configuracion: false,
   });
 
+  // Verificación de rutas de acuerdo a la nueva estructura
   const isInicioSubpath = [
     "/dashboard/inicio",
     "/dashboard/inicio/detalles-productos",
-    "/dashboard/inicio/orden-ventas",
     "/dashboard/inicio/top-productos",
+    "/dashboard/inicio/proximos-vencimientos",
   ].some((path) => pathname.startsWith(path));
 
-  const isRegistroSubpath = [
-    "/dashboard/registro",
-    "/dashboard/registro/registro-producto",
+  const isCatalogosSubpath = [
+    "/dashboard/catalogos",
+    "/dashboard/catalogos/categorias",
+    "/dashboard/catalogos/unidades-medida", //Para estandarizar las unidades de los productos
+  ].some((path) => pathname.startsWith(path));
+
+  const isProductosSubpath = [
+    "/dashboard/productos",
+    "/dashboard/productos/registro-producto",
+    "/dashboard/productos/edicion",
   ].some((path) => pathname.startsWith(path));
 
   const isInventarioSubpath = [
     "/dashboard/inventario",
     "/dashboard/inventario/entradas",
     "/dashboard/inventario/salidas",
+    "/dashboard/inventario/ajustes",
     "/dashboard/inventario/historial",
   ].some((path) => pathname.startsWith(path));
 
@@ -56,19 +69,39 @@ export default function Sidebar() {
 
   const isProveedoresSubpath = [
     "/dashboard/proveedores",
+    "/dashboard/proveedores/registro",
+    "/dashboard/proveedores/edicion",
     "/dashboard/proveedores/distribuidores",
     "/dashboard/proveedores/historial",
+  ].some((path) => pathname.startsWith(path));
+
+  const isConfiguracionSubpath = [
+    "/dashboard/configuracion",
+    "/dashboard/configuracion/usuarios",
+    "/dashboard/configuracion/roles",
+    "/dashboard/configuracion/notificaciones",
+    "/dashboard/configuracion/backup",
   ].some((path) => pathname.startsWith(path));
 
   useEffect(() => {
     setExpandedMenus({
       inicio: isInicioSubpath,
-      registro: isRegistroSubpath,
+      catalogos: isCatalogosSubpath,
+      productos: isProductosSubpath,
       inventario: isInventarioSubpath,
       reportes: isReportesSubpath,
       proveedores: isProveedoresSubpath,
+      configuracion: isConfiguracionSubpath,
     });
-  }, [isInicioSubpath, isRegistroSubpath, isInventarioSubpath, isReportesSubpath, isProveedoresSubpath]);
+  }, [
+    isInicioSubpath,
+    isCatalogosSubpath,
+    isProductosSubpath,
+    isInventarioSubpath,
+    isReportesSubpath,
+    isProveedoresSubpath,
+    isConfiguracionSubpath,
+  ]);
 
   const toggleMenu = (section: MenuKey) => {
     setExpandedMenus((prev) => ({
@@ -93,10 +126,10 @@ export default function Sidebar() {
             <li key={href}>
               <Link
                 href={href}
-                className={`block py-2 px-3 rounded-md text-sm ${
+                className={`block py-2 px-3 rounded-md text-sm transition-colors ${
                   pathname === href
-                    ? "text-heading-DEFAULT font-small bg-muted-light"
-                    : "text-white hover:bg-muted-light"
+                    ? "text-white font-medium bg-accent-light"
+                    : "text-white hover:bg-white/10"
                 }`}
               >
                 {text}
@@ -109,7 +142,7 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="h-full w-64 bg-primary border-r border-muted-DEFAULT flex flex-col">
+    <div className="h-full w-[256px] bg-primary border-r border-muted-DEFAULT flex flex-col overflow-hidden">
       <div className="flex items-center justify-center border-b border-muted-light">
         <Link href="/dashboard" className="inline-block">
           <Image 
@@ -123,8 +156,7 @@ export default function Sidebar() {
         </Link>
       </div>
 
-
-      <nav className="flex-1 py-2 overflow-y-auto">
+      <nav className="flex-1 py-2 overflow-y-auto pr-2 scrollbar-hide">
         <ul className="space-y-1 px-3">
           {/* Inicio */}
           <li>
@@ -133,7 +165,7 @@ export default function Sidebar() {
               onClick={() => handleSectionClick("inicio", "/dashboard/inicio")}
               className={`flex items-center w-full p-3 rounded-md transition-colors ${
                 isInicioSubpath
-                  ? "bg-accent-light text-heading-DEFAULT font-small"
+                  ? "bg-accent-light text-heading-DEFAULT font-medium"
                   : "text-white hover:bg-accent-light"
               }`}
             >
@@ -169,31 +201,91 @@ export default function Sidebar() {
             </button>
             {renderSubmenu("inicio", [
               { href: "/dashboard/inicio/detalles-productos", text: "Detalles de productos" },
-              { href: "/dashboard/inicio/orden-ventas", text: "Orden de ventas" },
               { href: "/dashboard/inicio/top-productos", text: "Top de productos" },
+              { href: "/dashboard/inicio/proximos-vencimientos", text: "Próximos vencimientos" },
             ])}
           </li>
 
-
-          {/* Registro */}
+          {/* Catálogos*/}
           <li>
             <button
               type="button"
-              onClick={() => handleSectionClick("registro", "/registro")}
+              onClick={() => setExpandedMenus(prev => ({
+                ...prev,
+                catalogos: !prev.catalogos
+              }))}
               className={`flex items-center w-full p-3 rounded-md transition-colors ${
-                isRegistroSubpath
+                isCatalogosSubpath
+                  ? "bg-accent-light text-heading-DEFAULT font-small"
+                  : "text-white hover:bg-accent-light"
+              }`}
+            >
+              <Layers
+                size={20}
+                className={`flex-shrink-0 ${
+                  isCatalogosSubpath ? "text-heading-DEFAULT" : "text-white"
+                }`}
+              />
+              <span
+                className={`ml-3 flex-1 text-left ${
+                  isCatalogosSubpath ? "text-heading-DEFAULT" : "text-white"
+                }`}
+              >
+                Catálogos
+              </span>
+              <svg
+                className={`w-4 h-4 ml-auto transition-transform ${
+                  expandedMenus.catalogos ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            {renderSubmenu("catalogos", [
+              { href: "/dashboard/catalogos/categorias", text: "Categorías" },
+              { href: "/dashboard/catalogos/unidades-medida", text: "Unidades de medida" },
+            ])}
+          </li>
+
+          {/* Productos */}
+          <li>
+            <button
+              type="button"
+              onClick={() => setExpandedMenus(prev => ({
+                ...prev,
+                productos: !prev.productos
+              }))}
+              className={`flex items-center w-full p-3 rounded-md transition-colors ${
+                isProductosSubpath
                   ? "bg-accent-light text-heading-DEFAULT font-small"
                   : "text-white hover:bg-accent-light"
               }`}
             >
               <Clipboard
                 size={20}
-                className="flex-shrink-0 text-heading-DEFAULT"
+                className={`flex-shrink-0 ${
+                  isProductosSubpath ? "text-heading-DEFAULT" : "text-white"
+                }`}
               />
-              <span className="ml-3 flex-1 text-left text-white">Registro</span>
+              <span
+                className={`ml-3 flex-1 text-left ${
+                  isProductosSubpath ? "text-heading-DEFAULT" : "text-white"
+                }`}
+              >
+                Productos
+              </span>
               <svg
                 className={`w-4 h-4 ml-auto transition-transform ${
-                  expandedMenus.registro ? "rotate-180" : ""
+                  expandedMenus.productos ? "rotate-180" : ""
                 }`}
                 fill="none"
                 stroke="currentColor"
@@ -203,25 +295,39 @@ export default function Sidebar() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            {renderSubmenu("registro", [
-              { href: "/registro/registro-producto", text: "Registro de producto" },
+            {renderSubmenu("productos", [
+              { href: "/dashboard/productos/registro", text: "Registro de producto" },
+              { href: "/dashboard/productos/edicion", text: "edición de producto" },
             ])}
           </li>
-
 
           {/* Inventario */}
           <li>
             <button
               type="button"
-              onClick={() => handleSectionClick("inventario", "/inventario")}
+              onClick={() => setExpandedMenus(prev => ({
+                ...prev,
+                inventario: !prev.inventario
+              }))}
               className={`flex items-center w-full p-3 rounded-md transition-colors ${
                 isInventarioSubpath
                   ? "bg-accent-light text-heading-DEFAULT font-small"
                   : "text-white hover:bg-accent-light"
               }`}
             >
-              <Package size={20} className="flex-shrink-0 text-heading-DEFAULT" />
-              <span className="ml-3 flex-1 text-left text-white">Inventario</span>
+              <Package 
+                size={20} 
+                className={`flex-shrink-0 ${
+                  isInventarioSubpath ? "text-heading-DEFAULT" : "text-white"
+                }`} 
+              />
+              <span
+                className={`ml-3 flex-1 text-left ${
+                  isInventarioSubpath ? "text-heading-DEFAULT" : "text-white"
+                }`}
+              >
+                Inventario
+              </span>
               <svg
                 className={`w-4 h-4 ml-auto transition-transform ${
                   expandedMenus.inventario ? "rotate-180" : ""
@@ -235,26 +341,41 @@ export default function Sidebar() {
               </svg>
             </button>
             {renderSubmenu("inventario", [
-              { href: "/inventario/entradas", text: "Entradas" },
-              { href: "/inventario/salidas", text: "Salidas" },
-              { href: "/inventario/historial", text: "Historial" },
+              { href: "/dashboard/inventario", text: "Estado de inventario" },
+              { href: "/dashboard/inventario/entradas", text: "Entradas" },
+              { href: "/dashboard/inventario/salidas", text: "Salidas" },
+              { href: "/dashboard/inventario/ajustes", text: "Ajustes" },
+              { href: "/dashboard/inventario/historial", text: "Historial" },
             ])}
           </li>
-
 
           {/* Reportes */}
           <li>
             <button
               type="button"
-              onClick={() => handleSectionClick("reportes", "/reportes")}
+              onClick={() => setExpandedMenus(prev => ({
+                ...prev,
+                reportes: !prev.reportes
+              }))}
               className={`flex items-center w-full p-3 rounded-md transition-colors ${
                 isReportesSubpath
                   ? "bg-accent-light text-heading-DEFAULT font-small"
                   : "text-white hover:bg-accent-light"
               }`}
             >
-              <BarChart2 size={20} className="flex-shrink-0 text-heading-DEFAULT" />
-              <span className="ml-3 flex-1 text-left text-white">Reportes</span>
+              <BarChart2 
+                size={20} 
+                className={`flex-shrink-0 ${
+                  isReportesSubpath ? "text-heading-DEFAULT" : "text-white"
+                }`} 
+              />
+              <span
+                className={`ml-3 flex-1 text-left ${
+                  isReportesSubpath ? "text-heading-DEFAULT" : "text-white"
+                }`}
+              >
+                Reportes
+              </span>
               <svg
                 className={`w-4 h-4 ml-auto transition-transform ${
                   expandedMenus.reportes ? "rotate-180" : ""
@@ -268,11 +389,14 @@ export default function Sidebar() {
               </svg>
             </button>
             {renderSubmenu("reportes", [
-              { href: "/reportes/dia", text: "Reporte diario" },
-              { href: "/reportes/semana", text: "Reporte semanal" },
-              { href: "/reportes/mensual", text: "Reporte mensual" },
-              { href: "/reportes/producto-categoria", text: "Por producto/categoría" },
-              { href: "/reportes/periodo-tiempo", text: "Por periodo de tiempo" },
+              { href: "/dashboard/reportes", text: "Panel de reportes" },
+              { href: "/dashboard/reportes/dia", text: "Reporte diario" },
+              { href: "/dashboard/reportes/semana", text: "Reporte semanal" },
+              { href: "/dashboard/reportes/mensual", text: "Reporte mensual" },
+              { href: "/dashboard/reportes/producto-categoria", text: "Por producto/categoría" },
+              { href: "/dashboard/reportes/periodo-tiempo", text: "Por periodo de tiempo" },
+              { href: "/dashboard/reportes/vencimientos", text: "Vencimientos" },
+              { href: "/dashboard/reportes/rotacion-inventario", text: "Rotación de inventario" },
             ])}
           </li>
 
@@ -280,15 +404,29 @@ export default function Sidebar() {
           <li>
             <button
               type="button"
-              onClick={() => handleSectionClick("proveedores", "/proveedores")}
+              onClick={() => setExpandedMenus(prev => ({
+                ...prev,
+                proveedores: !prev.proveedores
+              }))}
               className={`flex items-center w-full p-3 rounded-md transition-colors ${
                 isProveedoresSubpath
                   ? "bg-accent-light text-heading-DEFAULT font-small"
                   : "text-white hover:bg-accent-light"
               }`}
             >
-              <Truck size={20} className="flex-shrink-0 text-heading-DEFAULT" />
-              <span className="ml-3 flex-1 text-left text-white">Proveedores</span>
+              <Truck 
+                size={20} 
+                className={`flex-shrink-0 ${
+                  isProveedoresSubpath ? "text-heading-DEFAULT" : "text-white"
+                }`} 
+              />
+              <span
+                className={`ml-3 flex-1 text-left ${
+                  isProveedoresSubpath ? "text-heading-DEFAULT" : "text-white"
+                }`}
+              >
+                Proveedores
+              </span>
               <svg
                 className={`w-4 h-4 ml-auto transition-transform ${
                   expandedMenus.proveedores ? "rotate-180" : ""
@@ -302,8 +440,57 @@ export default function Sidebar() {
               </svg>
             </button>
             {renderSubmenu("proveedores", [
-              { href: "/proveedores/distribuidores", text: "Distribuidores" },
-              { href: "/proveedores/historial", text: "Historial de compras" },
+              { href: "/dashboard/proveedores", text: "Listado de proveedores" },
+              { href: "/dashboard/proveedores/registro", text: "Registro de proveedor" },
+              { href: "/dashboard/proveedores/distribuidores", text: "Distribuidores" },
+              { href: "/dashboard/proveedores/historial", text: "Historial de compras" },
+            ])}
+          </li>
+
+          {/* Configuración*/}
+          <li>
+            <button
+              type="button"
+              onClick={() => setExpandedMenus(prev => ({
+                ...prev,
+                configuracion: !prev.configuracion
+              }))}
+              className={`flex items-center w-full p-3 rounded-md transition-colors ${
+                isConfiguracionSubpath
+                  ? "bg-accent-light text-heading-DEFAULT font-small"
+                  : "text-white hover:bg-accent-light"
+              }`}
+            >
+              <Settings
+                size={20}
+                className={`flex-shrink-0 ${
+                  isConfiguracionSubpath ? "text-heading-DEFAULT" : "text-white"
+                }`}
+              />
+              <span
+                className={`ml-3 flex-1 text-left ${
+                  isConfiguracionSubpath ? "text-heading-DEFAULT" : "text-white"
+                }`}
+              >
+                Configuración
+              </span>
+              <svg
+                className={`w-4 h-4 ml-auto transition-transform ${
+                  expandedMenus.configuracion ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {renderSubmenu("configuracion", [
+              { href: "/dashboard/configuracion/usuarios", text: "Usuarios" },
+              { href: "/dashboard/configuracion/roles", text: "Roles" },
+              { href: "/dashboard/configuracion/notificaciones", text: "Notificaciones" },
+              { href: "/dashboard/configuracion/backup", text: "Copias de seguridad" },
             ])}
           </li>
         </ul>

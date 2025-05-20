@@ -1,8 +1,10 @@
 export type MenuKey =
-  | 'inicio'
-  | 'registro'
-  | 'inventario'
-  | 'reportes'
-  | 'proveedores';
+| "inicio"
+| "catalogos"
+| "productos"
+| "inventario"
+| "reportes"
+| "proveedores"
+| "configuracion"
 
 export type ExpandedMenus = Record<MenuKey, boolean>;
