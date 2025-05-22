@@ -32,26 +32,33 @@ export default function Sidebar() {
     configuracion: false,
   });
 
+  // Manejo seguro de pathname - puede ser null durante la hidratación
+  const currentPath = pathname || "";
+
   // Define path matching patterns
-  const isCatalogosSubpath = pathname.startsWith("/dashboard/catalogos");
-  const isProductosSubpath = pathname.startsWith("/dashboard/productos");
-  const isInventarioSubpath = pathname.startsWith("/dashboard/inventario");
-  const isReportesSubpath = pathname.startsWith("/dashboard/reportes");
-  const isProveedoresSubpath = pathname.startsWith("/dashboard/proveedores");
-  const isConfiguracionSubpath = pathname.startsWith("/dashboard/configuracion");
+  const isCatalogosSubpath = currentPath.startsWith("/dashboard/catalogos");
+  const isProductosSubpath = currentPath.startsWith("/dashboard/productos");
+  const isInventarioSubpath = currentPath.startsWith("/dashboard/inventario");
+  const isReportesSubpath = currentPath.startsWith("/dashboard/reportes");
+  const isProveedoresSubpath = currentPath.startsWith("/dashboard/proveedores");
+  const isConfiguracionSubpath = currentPath.startsWith("/dashboard/configuracion");
 
   // Update expanded menus state when pathname changes
   useEffect(() => {
-    setExpandedMenus({
-      inicio: false, // Inicio no tiene submenús
-      catalogos: isCatalogosSubpath,
-      productos: isProductosSubpath,
-      inventario: isInventarioSubpath,
-      reportes: isReportesSubpath,
-      proveedores: isProveedoresSubpath,
-      configuracion: isConfiguracionSubpath,
-    });
+    // Solo actualizar si pathname no es null
+    if (pathname) {
+      setExpandedMenus({
+        inicio: false, // Inicio no tiene submenús
+        catalogos: isCatalogosSubpath,
+        productos: isProductosSubpath,
+        inventario: isInventarioSubpath,
+        reportes: isReportesSubpath,
+        proveedores: isProveedoresSubpath,
+        configuracion: isConfiguracionSubpath,
+      });
+    }
   }, [
+    pathname,
     isCatalogosSubpath,
     isProductosSubpath,
     isInventarioSubpath,
@@ -86,7 +93,7 @@ export default function Sidebar() {
               <Link
                 href={href}
                 className={`block py-2 px-3 rounded-md text-sm transition-colors font-medium ${
-                  pathname === href
+                  currentPath === href
                     ? "text-white bg-accent-light"
                     : "text-white hover:bg-white/10"
                 }`}
@@ -109,7 +116,7 @@ export default function Sidebar() {
         <Link
           href="/dashboard/inicio"
           className={`flex items-center w-full p-3 rounded-md transition-colors font-medium ${
-            pathname === "/dashboard/inicio"
+            currentPath === "/dashboard/inicio"
               ? "bg-accent-light text-heading-DEFAULT"
               : "text-white hover:bg-accent-light"
           }`}
@@ -118,12 +125,12 @@ export default function Sidebar() {
           <Home
             size={20}
             className={`flex-shrink-0 ${
-              pathname === "/dashboard/inicio" ? "text-heading-DEFAULT" : "text-white"
+              currentPath === "/dashboard/inicio" ? "text-heading-DEFAULT" : "text-white"
             }`}
           />
           <span
             className={`ml-3 flex-1 text-left ${
-              pathname === "/dashboard/inicio" ? "text-heading-DEFAULT" : "text-white"
+              currentPath === "/dashboard/inicio" ? "text-heading-DEFAULT" : "text-white"
             }`}
           >
             Inicio
@@ -146,7 +153,7 @@ export default function Sidebar() {
               ? "bg-accent-light text-heading-DEFAULT"
               : "text-white hover:bg-accent-light"
           }`}
-          aria-expanded={expandedMenus.catalogos}
+          aria-expanded={expandedMenus.catalogos ? "true" : "false"}
         >
           <Layers
             size={20}
@@ -199,7 +206,7 @@ export default function Sidebar() {
               ? "bg-accent-light text-heading-DEFAULT"
               : "text-white hover:bg-accent-light"
           }`}
-          aria-expanded={expandedMenus.productos}
+          aria-expanded={expandedMenus.productos ? "true" : "false"}
         >
           <Clipboard
             size={20}
@@ -248,7 +255,7 @@ export default function Sidebar() {
               ? "bg-accent-light text-heading-DEFAULT"
               : "text-white hover:bg-accent-light"
           }`}
-          aria-expanded={expandedMenus.inventario}
+          aria-expanded={expandedMenus.inventario ? "true" : "false"}
         >
           <Package 
             size={20} 
@@ -297,7 +304,7 @@ export default function Sidebar() {
               ? "bg-accent-light text-heading-DEFAULT"
               : "text-white hover:bg-accent-light"
           }`}
-          aria-expanded={expandedMenus.reportes}
+          aria-expanded={expandedMenus.reportes ? "true" : "false"}
         >
           <BarChart2 
             size={20} 
@@ -346,7 +353,7 @@ export default function Sidebar() {
               ? "bg-accent-light text-heading-DEFAULT"
               : "text-white hover:bg-accent-light"
           }`}
-          aria-expanded={expandedMenus.proveedores}
+          aria-expanded={expandedMenus.proveedores ? "true" : "false"}
         >
           <Truck 
             size={20} 
@@ -396,7 +403,7 @@ export default function Sidebar() {
               ? "bg-accent-light text-heading-DEFAULT"
               : "text-white hover:bg-accent-light"
           }`}
-          aria-expanded={expandedMenus.configuracion}
+          aria-expanded={expandedMenus.configuracion ? "true" : "false"}
         >
           <Settings
             size={20}
@@ -447,7 +454,7 @@ export default function Sidebar() {
           }}
           className="flex items-center justify-center h-10 w-10 rounded-md bg-primary text-white hover:bg-accent-light transition-colors focus:outline-none"
           aria-label="Toggle menu"
-          aria-expanded={mobileMenuOpen}
+          aria-expanded={mobileMenuOpen ? "true" : "false"}
         >
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>

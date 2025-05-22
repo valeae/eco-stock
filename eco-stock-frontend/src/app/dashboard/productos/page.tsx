@@ -1,17 +1,28 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
-import { Toaster, toast } from "sonner";
-import { Edit, Trash2, Download, Loader2, Plus } from "lucide-react";
+import { toast } from "sonner";
 
-// Interfaces
-interface ProductoDetalle {
+//Components
+import PageLayout from "@/components/shared/PageLayout";
+import SearchAndActions from "@/components/shared/SearchAndActions";
+import DataForm, { type FormField } from "@/components/shared/DataForm";
+import DataTable, {
+  type TableColumn,
+  StatusBadge,
+} from "@/components/shared/DataTable";
+import { exportToCSV } from "@/components/shared/ExportUtils";
+
+//Hooks
+import { useFormValidation } from "@/hooks/useFormValidation";
+
+type ProductoDetalle = {
   id: number;
   nombre: string;
   descripcion: string;
   stock: number;
   estado: string;
-}
+};
 
 const PRODUCTOS_EJEMPLO: ProductoDetalle[] = [
   {
@@ -59,13 +70,17 @@ export default function DetallesProductosPage() {
   const [formVisible, setFormVisible] = useState(false);
   const [exportandoCSV, setExportandoCSV] = useState(false);
 
-  const [nombre, setNombre] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [stock, setStock] = useState<number>(0);
-  const [estado, setEstado] = useState("");
+  const [formData, setFormData] = useState({
+    nombre: "",
+    descripcion: "",
+    stock: 0,
+    estado: "",
+  });
 
   const inputNombreRef = useRef<HTMLInputElement>(null);
+  const { validateRequired, validateUnique } = useFormValidation();
 
+  // Alerta de stock bajo
   useEffect(() => {
     for (const producto of productos) {
       if (producto.stock <= 10) {
@@ -76,42 +91,38 @@ export default function DetallesProductosPage() {
     }
   }, [productos]);
 
-  useEffect(() => {
-    if (formVisible) {
-      inputNombreRef.current?.focus();
-    }
-  }, [formVisible]);
-
   const handleAgregarOEditar = () => {
-    if (!nombre.trim() || !descripcion.trim() || !estado.trim() || stock < 0) {
-      toast.error("Todos los campos son obligatorios");
+    if (!validateRequired(formData, ["nombre", "descripcion", "estado"])) {
       return;
     }
 
-    const nombreExistente = productos.find(
-      (c) => c.nombre.toLowerCase() === nombre.toLowerCase() && c.id !== editandoId
-    );
+    if (formData.stock < 0) {
+      toast.error("El stock no puede ser negativo");
+      return;
+    }
 
-    if (nombreExistente) {
-      toast.warning("producto ya existe");
+    if (
+      !validateUnique(
+        productos,
+        formData.nombre,
+        "nombre",
+        editandoId,
+        "Producto ya existe"
+      )
+    ) {
       return;
     }
 
     if (editandoId) {
       setProductos((prev) =>
-        prev.map((p) =>
-          p.id === editandoId ? { ...p, nombre, descripcion, stock, estado } : p
-        )
+        prev.map((p) => (p.id === editandoId ? { ...p, ...formData } : p))
       );
       toast.success("Producto actualizado");
       setEditandoId(null);
     } else {
       const nuevoProducto: ProductoDetalle = {
         id: Date.now(),
-        nombre,
-        descripcion,
-        stock,
-        estado,
+        ...formData,
       };
       setProductos((prev) => [...prev, nuevoProducto]);
       toast.success("Producto agregado");
@@ -121,27 +132,30 @@ export default function DetallesProductosPage() {
   };
 
   const resetFormulario = () => {
-    setNombre("");
-    setDescripcion("");
-    setStock(0);
-    setEstado("");
+    setFormData({
+      nombre: "",
+      descripcion: "",
+      stock: 0,
+      estado: "",
+    });
     setFormVisible(false);
     setEditandoId(null);
   };
 
   const handleEditar = (producto: ProductoDetalle) => {
     setEditandoId(producto.id);
-    setNombre(producto.nombre);
-    setDescripcion(producto.descripcion);
-    setStock(producto.stock);
-    setEstado(producto.estado);
+    setFormData({
+      nombre: producto.nombre,
+      descripcion: producto.descripcion,
+      stock: producto.stock,
+      estado: producto.estado,
+    });
     setFormVisible(true);
   };
 
-  const handleEliminar = (id: number) => {
-    const eliminado = productos.find((p) => p.id === id);
-    setProductos((prev) => prev.filter((p) => p.id !== id));
-    if (eliminado) toast.info(`Producto eliminado: ${eliminado.nombre}`);
+  const handleEliminar = (producto: ProductoDetalle) => {
+    setProductos((prev) => prev.filter((p) => p.id !== producto.id));
+    toast.info(`Producto eliminado: ${producto.nombre}`);
   };
 
   const productosFiltrados = productos.filter((p) =>
@@ -149,240 +163,131 @@ export default function DetallesProductosPage() {
   );
 
   const exportarCSV = useCallback(() => {
-    try {
-      setExportandoCSV(true);
+    setExportandoCSV(true);
 
+    setTimeout(() => {
       const headers = ["Nombre", "Descripción", "Stock", "Estado"];
-
-      const csvData = productosFiltrados.map(
-        (item) =>
-          `"${item.nombre}","${item.descripcion}",${item.stock},"${item.estado}"`
+      const success = exportToCSV(
+        productosFiltrados,
+        headers,
+        "productos-inventario.csv"
       );
 
-      const csvContent = [headers.join(","), ...csvData].join("\n");
+      if (success) {
+        toast.success("Archivo CSV generado correctamente");
+      } else {
+        toast.error("Error al generar el archivo CSV");
+      }
 
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", "inventario-agricola.csv");
-      link.style.visibility = "hidden";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      toast.success("Archivo CSV generado correctamente");
-    } catch (error) {
-      console.error("Error al generar CSV:", error);
-      toast.error("Error al generar el archivo CSV");
-    } finally {
       setExportandoCSV(false);
-    }
+    }, 100);
   }, [productosFiltrados]);
 
+  const formFields: FormField[] = [
+    {
+      key: "nombre",
+      type: "text",
+      placeholder: "Nombre",
+      value: formData.nombre,
+      onChange: (value) =>
+        setFormData((prev) => ({ ...prev, nombre: String(value) })),
+    },
+    {
+      key: "descripcion",
+      type: "text",
+      placeholder: "Descripción",
+      value: formData.descripcion,
+      onChange: (value) =>
+        setFormData((prev) => ({ ...prev, descripcion: String(value) })),
+    },
+    {
+      key: "stock",
+      type: "number",
+      placeholder: "Stock",
+      value: formData.stock,
+      onChange: (value) =>
+        setFormData((prev) => ({ ...prev, stock: Number(value) || 0 })),
+      min: 0,
+    },
+    {
+      key: "estado",
+      type: "select",
+      placeholder: "Selecciona un estado",
+      value: formData.estado,
+      onChange: (value) =>
+        setFormData((prev) => ({ ...prev, estado: String(value) })),
+      options: [
+        { value: "Disponible", label: "Disponible" },
+        { value: "Agotado", label: "Agotado" },
+        { value: "Bajo stock", label: "Bajo stock" },
+        { value: "Desabilitado", label: "Desabilitado" },
+      ],
+    },
+  ];
+
+  const columns: TableColumn<ProductoDetalle>[] = [
+    { key: "nombre", title: "Nombre" },
+    { key: "descripcion", title: "Descripción" },
+    {
+      key: "stock",
+      title: "Stock",
+      render: (value, item) => (
+        <span
+          className={`font-medium ${
+            item.stock <= 10 ? "text-warning-DEFAULT" : ""
+          }`}
+        >
+          {value}
+        </span>
+      ),
+    },
+    {
+      key: "estado",
+      title: "Estado",
+      render: (value) => (
+        <StatusBadge status={String(value)} variant="inventory" />
+      ),
+    },
+  ];
+
+  // Función para aplicar clase de fila personalizada
+  const getRowClassName = (producto: ProductoDetalle) => {
+    return producto.stock <= 10 ? "bg-red-50" : "";
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center bg-primary-ecoLight p-10">
-      <Toaster 
-        position="top-right" 
-        richColors 
-        expand={true}
-        gap={12}
-        offset={16}
-        toastOptions={{
-          style: { marginBottom: '12px' },
-          className: 'my-3',
-        }} />
-      <h2 className="text-3xl font-bold text-heading-dark mb-8">
-        Detalles de Productos
-      </h2>
+    <PageLayout title="Detalles de Productos">
+      <SearchAndActions
+        searchValue={busqueda}
+        onSearchChange={setBusqueda}
+        searchPlaceholder="Buscar producto..."
+        formVisible={formVisible}
+        onToggleForm={() => setFormVisible(true)}
+        onSave={handleAgregarOEditar}
+        onCancel={resetFormulario}
+        isEditing={!!editandoId}
+        addButtonText="Agregar Producto"
+        showExport={true}
+        onExport={exportarCSV}
+        isExporting={exportandoCSV}
+      />
 
-      {/* Buscador y botones */}
-      <div className="w-full max-w-4xl flex flex-col md:flex-row md:items-center gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="Buscar producto..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          className="p-3 border rounded-md w-full md:w-1/2"
-        />
-        <div className="flex flex-wrap gap-2 md:ml-auto">
-          {!formVisible && (
-            <>
-              <button
-                type="button"
-                onClick={() => setFormVisible(true)}
-                className="bg-primary-dark text-white px-6 py-2 rounded-md hover:bg-primary-light transition flex items-center gap-2"
-              >
-                <Plus size={18} />
-                Agregar producto
-              </button>
+      <DataForm
+        ref={inputNombreRef}
+        title="producto"
+        fields={formFields}
+        visible={formVisible}
+        isEditing={!!editandoId}
+      />
 
-              <button
-                type="button"
-                onClick={exportarCSV}
-                disabled={exportandoCSV}
-                className="bg-primary-dark text-white px-6 py-2 rounded-md transition flex items-center gap-2"
-              >
-                {exportandoCSV ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin" />
-                    Generando...
-                  </>
-                ) : (
-                  <>
-                    <Download size={18} />
-                    Exportar
-                  </>
-                )}
-              </button>
-            </>
-          )}
-          {formVisible && (
-            <>
-              <button
-                type="button"
-                onClick={handleAgregarOEditar}
-                className="bg-primary-dark text-white px-6 py-2 rounded-md hover:bg-primary-light transition"
-              >
-                {editandoId ? "Guardar cambios" : "Guardar producto"}
-              </button>
-              <button
-                type="button"
-                onClick={resetFormulario}
-                className="bg-muted-dark text-white px-6 py-2 rounded-md hover:bg-muted-light transition"
-              >
-                Cancelar
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Formulario */}
-      {formVisible && (
-        <div className="w-full max-w-4xl bg-white shadow-md rounded-xl p-6 mb-8">
-          <h3 className="text-xl font-semibold mb-4">
-            {editandoId ? "Editar producto" : "Agregar nuevo producto"}
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input
-              ref={inputNombreRef}
-              type="text"
-              placeholder="Nombre"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              className="p-2 border rounded-md"
-            />
-            <input
-              type="text"
-              placeholder="Descripción"
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-              className="p-2 border rounded-md"
-            />
-            <input
-              type="number"
-              placeholder="Stock"
-              value={stock}
-              onChange={(e) => setStock(Number.parseInt(e.target.value) || 0)}
-              className="p-2 border rounded-md"
-              min={0}
-            />
-            <select
-              aria-label="Selecciona un estado"
-              value={estado}
-              onChange={(e) => setEstado(e.target.value)}
-              className="p-2 border rounded-md"
-            >
-              <option value="">Selecciona un estado</option>
-              <option value="Disponible">Disponible</option>
-              <option value="Agotado">Agotado</option>
-              <option value="Bajo stock">Bajo stock</option>
-              <option value="Desabilitado">Desabilitado</option>
-            </select>
-          </div>
-        </div>
-      )}
-
-      {/* Tabla */}
-      <div
-        id="tabla-productos"
-        className="overflow-x-auto w-full max-w-4xl bg-white shadow-md rounded-xl"
-      >
-        <table className="min-w-full table-auto border-collapse">
-          <thead className="bg-primary-dark text-white">
-            <tr>
-              <th className="py-4 px-6 text-left">Nombre</th>
-              <th className="py-4 px-6 text-left">Descripción</th>
-              <th className="py-4 px-6 text-left">Stock</th>
-              <th className="py-4 px-6 text-left">Estado</th>
-              <th className="py-4 px-6 text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {productosFiltrados.map((producto) => (
-              <tr
-                key={producto.id}
-                className={`border-b border-muted-default hover:bg-muted-light transition ${
-                  producto.stock <= 10 ? "bg-red-50" : ""
-                }`}
-              >
-                <td className="py-4 px-6">{producto.nombre}</td>
-                <td className="py-4 px-6">{producto.descripcion}</td>
-                <td
-                  className={`py-4 px-6 font-medium ${
-                    producto.stock <= 10 ? "text-red-600" : ""
-                  }`}
-                >
-                  {producto.stock}
-                </td>
-                <td className="py-4 px-6">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      producto.estado === "Disponible"
-                        ? "bg-green-100 text-green-800"
-                        : producto.estado === "Agotado"
-                        ? "bg-red-100 text-red-800"
-                        : producto.estado === "Bajo stock"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : producto.estado === "Por ingresar"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {producto.estado}
-                  </span>
-                </td>
-                <td className="py-4 px-6 text-center space-x-3">
-                <button
-                    type="button"
-                    onClick={() => handleEditar(producto)}
-                    className="bg-primary-dark text-white p-2 rounded-md hover:bg-primary-light transition"
-                    title="Editar"
-                  >
-                    <Edit size={18} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleEliminar(producto.id)}
-                    className="bg-primary-dark text-white p-2 rounded-md hover:bg-primary-light transition"
-                    title="Eliminar"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {productosFiltrados.length === 0 && (
-              <tr>
-                <td colSpan={5} className="text-center py-4 text-muted-dark">
-                  No se encontraron productos
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <DataTable
+        data={productosFiltrados}
+        columns={columns}
+        onEdit={handleEditar}
+        onDelete={handleEliminar}
+        emptyMessage="No se encontraron productos."
+        rowClassName={getRowClassName}
+      />
+    </PageLayout>
   );
 }

@@ -7,8 +7,8 @@ import {
   TrendingDown,
   Filter,
 } from "lucide-react";
-import DropDownEvolution from "@/components/dashboard/drop-down-evolution";
-import ProgressBar from "@/components/dashboard/progress-bar";
+import DropDownEvolution from "@/components/dashboard/DropDownEvolution";
+import ProgressBar from "@/components/dashboard/ProgressBar";
 
 // data.ts
 export type Producto = {
@@ -32,10 +32,6 @@ export const PRODUCTOS_EJEMPLO: Producto[] = [
     evolucion: [
       { mes: "Ene", rotacion: 78 },
       { mes: "Feb", rotacion: 82 },
-      { mes: "Mar", rotacion: 85 },
-      { mes: "Abr", rotacion: 89 },
-      { mes: "May", rotacion: 92 },
-      { mes: "Jun", rotacion: 95 },
     ],
   },
   {
@@ -49,9 +45,6 @@ export const PRODUCTOS_EJEMPLO: Producto[] = [
       { mes: "Ene", rotacion: 75 },
       { mes: "Feb", rotacion: 79 },
       { mes: "Mar", rotacion: 82 },
-      { mes: "Abr", rotacion: 84 },
-      { mes: "May", rotacion: 86 },
-      { mes: "Jun", rotacion: 88 },
     ],
   },
   {
@@ -64,10 +57,7 @@ export const PRODUCTOS_EJEMPLO: Producto[] = [
     evolucion: [
       { mes: "Ene", rotacion: 90 },
       { mes: "Feb", rotacion: 88 },
-      { mes: "Mar", rotacion: 86 },
-      { mes: "Abr", rotacion: 85 },
-      { mes: "May", rotacion: 84 },
-      { mes: "Jun", rotacion: 82 },
+
     ],
   },
   {
@@ -82,8 +72,6 @@ export const PRODUCTOS_EJEMPLO: Producto[] = [
       { mes: "Feb", rotacion: 65 },
       { mes: "Mar", rotacion: 68 },
       { mes: "Abr", rotacion: 71 },
-      { mes: "May", rotacion: 73 },
-      { mes: "Jun", rotacion: 75 },
     ],
   },
 ];
