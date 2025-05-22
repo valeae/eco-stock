@@ -40,13 +40,12 @@ INSTALLED_APPS = [
 
     # My apps
     'inventory',
-    'ladding_page',
-    'login',
-    'main_page',
+    'productos',
     'register',
     'reports',
     'suppliers',
-    'user_register',
+    'users',
+
 ]
 
 MIDDLEWARE = [
