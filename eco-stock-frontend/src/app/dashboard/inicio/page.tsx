@@ -44,3 +44,33 @@ export default function ActivitiesSectionEnhanced() {
     </section>
   );
 }
+
+  // // Estadísticas del inventario
+  // const totalProductos = productos.length;
+  // const productosActivos = productos.filter(p => p.estadoInventario === "activo").length;
+  // const productosInactivos = productos.filter(p => p.estadoInventario === "inactivo").length;
+  // const stockTotalGeneral = productos.reduce((acc, p) => acc + p.stockTotal, 0);
+  // const stockDisponibleGeneral = productos.reduce((acc, p) => acc + p.stockDisponible, 0);
+
+  // {/* Estadísticas generales */}
+  // <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+  // <div className="bg-white p-4 rounded-lg shadow-md text-center">
+  //   <p className="text-sm text-gray-600">Total Productos</p>
+  //   <p className="text-2xl font-bold text-gray-800">{totalProductos}</p>
+  // </div>
+  // <div className="bg-white p-4 rounded-lg shadow-md text-center">
+  //   <p className="text-sm text-gray-600">Productos Activos</p>
+  //   <p className="text-2xl font-bold text-green-600">{productosActivos}</p>
+  // </div>
+  // <div className="bg-white p-4 rounded-lg shadow-md text-center">
+  //   <p className="text-sm text-gray-600">Productos Inactivos</p>
+  //   <p className="text-2xl font-bold text-red-600">{productosInactivos}</p>
+  // </div>
+  // <div className="bg-white p-4 rounded-lg shadow-md text-center">
+  //   <p className="text-sm text-gray-600">Stock Total</p>
+  //   <p className="text-2xl font-bold text-blue-600">{stockTotalGeneral}</p>
+  // </div>
+  // <div className="bg-white p-4 rounded-lg shadow-md text-center">
+  //   <p className="text-sm text-gray-600">Stock Disponible</p>
+  //   <p className="text-2xl font-bold text-purple-600">{stockDisponibleGeneral}</p>
+  // </div>

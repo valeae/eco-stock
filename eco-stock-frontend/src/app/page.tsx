@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
-import ContactoModal from "@/components/modal-contact";
+import ContactoModal from "@/components/shared/ModalContact";
 
 export default function Home() {
   const currentYear = new Date().getFullYear();

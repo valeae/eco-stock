@@ -1,33 +1,27 @@
-'use client';
+"use client";
 
-import Head from 'next/head';
-import Link from 'next/link';
-import { useState } from 'react';
+import type { Metadata } from "next";
+import Link from "next/link";
+import { useState } from "react";
 
-//components
-import Header from '@/components/logo-header';
+export const metadata: Metadata = {
+  title: "Registro | EcoStock",
+  description: "Registro en la plataforma EcoStock",
+};
 
-export default function Registro() {
-  const [nombreCompleto, setNombreCompleto] = useState('');
-  const [correo, setCorreo] = useState('');
-  const [contrasena, setContrasena] = useState('');
+export default function RegistrerForm() {
+  const [nombreCompleto, setNombreCompleto] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [contrasena, setContrasena] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Aquí irá tu lógica de autenticación
+    console.log("Register attempt:", { nombreCompleto, correo, contrasena });
+  };
 
   return (
-    <div 
-      className="min-h-screen flex items-center justify-center bg-cover bg-center py-12 px-4 sm:px-6 lg:px-8 relative"
-      style={{
-        backgroundImage: "url('/images/login-background.jpg')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
-    >
-      <Head>
-        <title>Registro | EcoStock</title>
-        <meta name="description" content="Registro en la plataforma EcoStock" />
-      </Head>
-
-      <Header />
-
+    <div>
       {/* Overlay semitransparente */}
       <div className="absolute inset-0 bg-black/30 z-0" />
 
@@ -43,7 +37,7 @@ export default function Registro() {
         {/* Tarjeta de registro */}
         <div className="bg-heading/70 backdrop-blur-md rounded-lg shadow-xl overflow-hidden">
           <div className="px-8 py-8">
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               {/* Campo Nombre */}
               <input
                 id="nombreCompleto"
@@ -103,7 +97,7 @@ export default function Registro() {
             {/* Enlace para ir al login */}
             <div className="mt-6 text-center">
               <p className="text-sm text-white">
-                ¿Ya tienes una cuenta?{' '}
+                ¿Ya tienes una cuenta?{" "}
                 <Link
                   href="/login"
                   className="font-medium text-white hover:text-primary transition-colors"
