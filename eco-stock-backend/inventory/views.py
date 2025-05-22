@@ -4,5 +4,5 @@ from django.shortcuts import render
 def crear_inventario():
     pass
 
-def actualizar():
+def actualizar_inventario():
     pass

@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     # My apps
     'inventory',
     'productos',
-    'register',
     'reports',
     'suppliers',
     'users',
@@ -84,7 +83,7 @@ WSGI_APPLICATION = 'main_app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ecostock_v2',
+        'NAME': 'ecostock_final',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',

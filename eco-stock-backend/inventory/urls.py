@@ -3,5 +3,6 @@ from django.urls import path
 
 
 urlpatterns = [
-    path('actualizar-inventario/', views.actualizar, name='actualizar_inventario')
+    path('crear-inventario/', views.crear_inventario, name='crear_inventario'),
+    path('actualizar-inventario/', views.actualizar_inventario, name='actualizar_inventario'),
 ]
