@@ -13,10 +13,10 @@ import {
   Layers,
   Settings,
   Menu,
-  X
+  X,
 } from "lucide-react";
 
-// Types 
+// Types
 import type { MenuKey, ExpandedMenus } from "@/types/menu";
 
 export default function Sidebar() {
@@ -41,7 +41,9 @@ export default function Sidebar() {
   const isInventarioSubpath = currentPath.startsWith("/dashboard/inventario");
   const isReportesSubpath = currentPath.startsWith("/dashboard/reportes");
   const isProveedoresSubpath = currentPath.startsWith("/dashboard/proveedores");
-  const isConfiguracionSubpath = currentPath.startsWith("/dashboard/configuracion");
+  const isConfiguracionSubpath = currentPath.startsWith(
+    "/dashboard/configuracion"
+  );
 
   // Update expanded menus state when pathname changes
   useEffect(() => {
@@ -125,17 +127,262 @@ export default function Sidebar() {
           <Home
             size={20}
             className={`flex-shrink-0 ${
-              currentPath === "/dashboard/inicio" ? "text-heading-DEFAULT" : "text-white"
+              currentPath === "/dashboard/inicio"
+                ? "text-heading-DEFAULT"
+                : "text-white"
             }`}
           />
           <span
             className={`ml-3 flex-1 text-left ${
-              currentPath === "/dashboard/inicio" ? "text-heading-DEFAULT" : "text-white"
+              currentPath === "/dashboard/inicio"
+                ? "text-heading-DEFAULT"
+                : "text-white"
             }`}
           >
             Inicio
           </span>
         </Link>
+      </li>
+
+      {/* Productos */}
+      <li>
+        <button
+          type="button"
+          onClick={() => toggleMenu("productos")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              toggleMenu("productos");
+            }
+          }}
+          className={`flex items-center w-full p-3 rounded-md transition-colors font-medium ${
+            isProductosSubpath
+              ? "bg-accent-light text-heading-DEFAULT"
+              : "text-white hover:bg-accent-light"
+          }`}
+          aria-expanded={expandedMenus.productos ? "true" : "false"}
+        >
+          <Clipboard
+            size={20}
+            className={`flex-shrink-0 ${
+              isProductosSubpath ? "text-heading-DEFAULT" : "text-white"
+            }`}
+          />
+          <span
+            className={`ml-3 flex-1 text-left ${
+              isProductosSubpath ? "text-heading-DEFAULT" : "text-white"
+            }`}
+          >
+            Productos
+          </span>
+          <svg
+            className={`w-4 h-4 ml-auto transition-transform ${
+              expandedMenus.productos ? "rotate-180" : ""
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+        {renderSubmenu("productos", [
+          {
+            href: "/dashboard/productos/detalles-productos",
+            text: "Detalles de productos",
+          },
+          {
+            href: "/dashboard/productos/proximos-vencimientos",
+            text: "Próximos vencimientos",
+          },
+        ])}
+      </li>
+
+      {/* Proveedores */}
+      <li>
+        <button
+          type="button"
+          onClick={() => toggleMenu("proveedores")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              toggleMenu("proveedores");
+            }
+          }}
+          className={`flex items-center w-full p-3 rounded-md transition-colors font-medium ${
+            isProveedoresSubpath
+              ? "bg-accent-light text-heading-DEFAULT"
+              : "text-white hover:bg-accent-light"
+          }`}
+          aria-expanded={expandedMenus.proveedores ? "true" : "false"}
+        >
+          <Truck
+            size={20}
+            className={`flex-shrink-0 ${
+              isProveedoresSubpath ? "text-heading-DEFAULT" : "text-white"
+            }`}
+          />
+          <span
+            className={`ml-3 flex-1 text-left ${
+              isProveedoresSubpath ? "text-heading-DEFAULT" : "text-white"
+            }`}
+          >
+            Proveedores
+          </span>
+          <svg
+            className={`w-4 h-4 ml-auto transition-transform ${
+              expandedMenus.proveedores ? "rotate-180" : ""
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+        {renderSubmenu("proveedores", [
+          { href: "/dashboard/proveedores", text: "Listado de proveedores" },
+        ])}
+      </li>
+
+      {/* Inventario */}
+      <li>
+        <button
+          type="button"
+          onClick={() => toggleMenu("inventario")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              toggleMenu("inventario");
+            }
+          }}
+          className={`flex items-center w-full p-3 rounded-md transition-colors font-medium ${
+            isInventarioSubpath
+              ? "bg-accent-light text-heading-DEFAULT"
+              : "text-white hover:bg-accent-light"
+          }`}
+          aria-expanded={expandedMenus.inventario ? "true" : "false"}
+        >
+          <Package
+            size={20}
+            className={`flex-shrink-0 ${
+              isInventarioSubpath ? "text-heading-DEFAULT" : "text-white"
+            }`}
+          />
+          <span
+            className={`ml-3 flex-1 text-left ${
+              isInventarioSubpath ? "text-heading-DEFAULT" : "text-white"
+            }`}
+          >
+            Inventario
+          </span>
+          <svg
+            className={`w-4 h-4 ml-auto transition-transform ${
+              expandedMenus.inventario ? "rotate-180" : ""
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+        {renderSubmenu("inventario", [
+          {
+            href: "/dashboard/inventario/detalles-inventario",
+            text: "Detalles de inventario",
+          },
+          {
+            href: "/dashboard/inventario/estado-inventario",
+            text: "Estado de inventario",
+          },
+          {
+            href: "/dashboard/inventario/historial-movimientos",
+            text: "Historial movimientos",
+          },
+        ])}
+      </li>
+
+      {/* Reportes */}
+      <li>
+        <button
+          type="button"
+          onClick={() => toggleMenu("reportes")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              toggleMenu("reportes");
+            }
+          }}
+          className={`flex items-center w-full p-3 rounded-md transition-colors font-medium ${
+            isReportesSubpath
+              ? "bg-accent-light text-heading-DEFAULT"
+              : "text-white hover:bg-accent-light"
+          }`}
+          aria-expanded={expandedMenus.reportes ? "true" : "false"}
+        >
+          <BarChart2
+            size={20}
+            className={`flex-shrink-0 ${
+              isReportesSubpath ? "text-heading-DEFAULT" : "text-white"
+            }`}
+          />
+          <span
+            className={`ml-3 flex-1 text-left ${
+              isReportesSubpath ? "text-heading-DEFAULT" : "text-white"
+            }`}
+          >
+            Reportes
+          </span>
+          <svg
+            className={`w-4 h-4 ml-auto transition-transform ${
+              expandedMenus.reportes ? "rotate-180" : ""
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+        {renderSubmenu("reportes", [
+          {
+            href: "/dashboard/reportes/top-productos",
+            text: "Top de productos",
+          },
+          {
+            href: "/dashboard/reportes/stock-categoria",
+            text: "Stock por categoría",
+          },
+          {
+            href: "/dashboard/reportes/movimientos-periodo",
+            text: "Movimientos por periodo",
+          },
+          {
+            href: "/dashboard/reportes/ingresos-proveedores",
+            text: "Ingresos por proveedor",
+          },
+        ])}
       </li>
 
       {/* Catálogos*/}
@@ -144,7 +391,7 @@ export default function Sidebar() {
           type="button"
           onClick={() => toggleMenu("catalogos")}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if (e.key === "Enter" || e.key === " ") {
               toggleMenu("catalogos");
             }
           }}
@@ -187,204 +434,14 @@ export default function Sidebar() {
         </button>
         {renderSubmenu("catalogos", [
           { href: "/dashboard/catalogos/categorias", text: "Categorías" },
-          { href: "/dashboard/catalogos/unidades-medida", text: "Unidades de medida" },
-        ])}
-      </li>
-
-      {/* Productos */}
-      <li>
-        <button
-          type="button"
-          onClick={() => toggleMenu("productos")}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              toggleMenu("productos");
-            }
-          }}
-          className={`flex items-center w-full p-3 rounded-md transition-colors font-medium ${
-            isProductosSubpath
-              ? "bg-accent-light text-heading-DEFAULT"
-              : "text-white hover:bg-accent-light"
-          }`}
-          aria-expanded={expandedMenus.productos ? "true" : "false"}
-        >
-          <Clipboard
-            size={20}
-            className={`flex-shrink-0 ${
-              isProductosSubpath ? "text-heading-DEFAULT" : "text-white"
-            }`}
-          />
-          <span
-            className={`ml-3 flex-1 text-left ${
-              isProductosSubpath ? "text-heading-DEFAULT" : "text-white"
-            }`}
-          >
-            Productos
-          </span>
-          <svg
-            className={`w-4 h-4 ml-auto transition-transform ${
-              expandedMenus.productos ? "rotate-180" : ""
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-        {renderSubmenu("productos", [
-          { href: "/dashboard/productos", text: "Detalles de productos" },
-          { href: "/dashboard/productos/top-productos", text: "Top de productos" },
-          { href: "/dashboard/productos/proximos-vencimientos", text: "Próximos vencimientos" },
-        ])}
-      </li>
-
-      {/* Inventario */}
-      <li>
-        <button
-          type="button"
-          onClick={() => toggleMenu("inventario")}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              toggleMenu("inventario");
-            }
-          }}
-          className={`flex items-center w-full p-3 rounded-md transition-colors font-medium ${
-            isInventarioSubpath
-              ? "bg-accent-light text-heading-DEFAULT"
-              : "text-white hover:bg-accent-light"
-          }`}
-          aria-expanded={expandedMenus.inventario ? "true" : "false"}
-        >
-          <Package 
-            size={20} 
-            className={`flex-shrink-0 ${
-              isInventarioSubpath ? "text-heading-DEFAULT" : "text-white"
-            }`} 
-          />
-          <span
-            className={`ml-3 flex-1 text-left ${
-              isInventarioSubpath ? "text-heading-DEFAULT" : "text-white"
-            }`}
-          >
-            Inventario
-          </span>
-          <svg
-            className={`w-4 h-4 ml-auto transition-transform ${
-              expandedMenus.inventario ? "rotate-180" : ""
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-        {renderSubmenu("inventario", [
-          { href: "/dashboard/inventario", text: "Estado de inventario" },
-          { href: "/dashboard/inventario/estado-inventario", text: "Detalles de inventario" },
-          { href: "/dashboard/inventario/historial", text: "Historial" },
-        ])}
-      </li>
-
-      {/* Reportes */}
-      <li>
-        <button
-          type="button"
-          onClick={() => toggleMenu("reportes")}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              toggleMenu("reportes");
-            }
-          }}
-          className={`flex items-center w-full p-3 rounded-md transition-colors font-medium ${
-            isReportesSubpath
-              ? "bg-accent-light text-heading-DEFAULT"
-              : "text-white hover:bg-accent-light"
-          }`}
-          aria-expanded={expandedMenus.reportes ? "true" : "false"}
-        >
-          <BarChart2 
-            size={20} 
-            className={`flex-shrink-0 ${
-              isReportesSubpath ? "text-heading-DEFAULT" : "text-white"
-            }`} 
-          />
-          <span
-            className={`ml-3 flex-1 text-left ${
-              isReportesSubpath ? "text-heading-DEFAULT" : "text-white"
-            }`}
-          >
-            Reportes
-          </span>
-          <svg
-            className={`w-4 h-4 ml-auto transition-transform ${
-              expandedMenus.reportes ? "rotate-180" : ""
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-        {renderSubmenu("reportes", [
-          { href: "/dashboard/reportes", text: "Panel de reportes" },
-          { href: "/dashboard/reportes/producto-categoria", text: "Por producto/categoría" },
-          { href: "/dashboard/reportes/periodo-tiempo", text: "Por periodo de tiempo" },
-        ])}
-      </li>
-
-      {/* Proveedores */}
-      <li>
-        <button
-          type="button"
-          onClick={() => toggleMenu("proveedores")}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              toggleMenu("proveedores");
-            }
-          }}
-          className={`flex items-center w-full p-3 rounded-md transition-colors font-medium ${
-            isProveedoresSubpath
-              ? "bg-accent-light text-heading-DEFAULT"
-              : "text-white hover:bg-accent-light"
-          }`}
-          aria-expanded={expandedMenus.proveedores ? "true" : "false"}
-        >
-          <Truck 
-            size={20} 
-            className={`flex-shrink-0 ${
-              isProveedoresSubpath ? "text-heading-DEFAULT" : "text-white"
-            }`} 
-          />
-          <span
-            className={`ml-3 flex-1 text-left ${
-              isProveedoresSubpath ? "text-heading-DEFAULT" : "text-white"
-            }`}
-          >
-            Proveedores
-          </span>
-          <svg
-            className={`w-4 h-4 ml-auto transition-transform ${
-              expandedMenus.proveedores ? "rotate-180" : ""
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-        {renderSubmenu("proveedores", [
-          { href: "/dashboard/proveedores", text: "Listado de proveedores" },
-          { href: "/dashboard/proveedores/registro", text: "Registro de proveedor" },
-          { href: "/dashboard/proveedores/distribuidores", text: "Distribuidores" },
-          { href: "/dashboard/proveedores/historial", text: "Historial de compras" },
+          {
+            href: "/dashboard/catalogos/tipos-movimiento",
+            text: "Tipos de movimiento",
+          },
+          {
+            href: "/dashboard/catalogos/unidades-medida",
+            text: "Unidades de medida",
+          },
         ])}
       </li>
 
@@ -394,7 +451,7 @@ export default function Sidebar() {
           type="button"
           onClick={() => toggleMenu("configuracion")}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if (e.key === "Enter" || e.key === " ") {
               toggleMenu("configuracion");
             }
           }}
@@ -427,14 +484,25 @@ export default function Sidebar() {
             viewBox="0 0 24 24"
             aria-hidden="true"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </button>
         {renderSubmenu("configuracion", [
           { href: "/dashboard/configuracion/usuarios", text: "Usuarios" },
           { href: "/dashboard/configuracion/roles", text: "Roles" },
-          { href: "/dashboard/configuracion/notificaciones", text: "Notificaciones" },
-          { href: "/dashboard/configuracion/backup", text: "Copias de seguridad" },
+          {
+            href: "/dashboard/configuracion/notificaciones",
+            text: "Notificaciones",
+          },
+          {
+            href: "/dashboard/configuracion/backup",
+            text: "Copias de seguridad",
+          },
         ])}
       </li>
     </ul>
@@ -448,7 +516,7 @@ export default function Sidebar() {
           type="button"
           onClick={toggleMobileMenu}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if (e.key === "Enter" || e.key === " ") {
               toggleMobileMenu();
             }
           }}
@@ -461,13 +529,13 @@ export default function Sidebar() {
       </div>
 
       {/* Mobile sidebar overlay */}
-      <div 
+      <div
         className={`fixed inset-0 z-40 bg-black bg-opacity-50 transition-opacity md:hidden ${
           mobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={toggleMobileMenu}
         onKeyDown={(e) => {
-          if (e.key === 'Escape') {
+          if (e.key === "Escape") {
             toggleMobileMenu();
           }
         }}
@@ -475,18 +543,22 @@ export default function Sidebar() {
         role="button"
         aria-label="Close menu"
       />
-      
+
       {/* Mobile sidebar */}
-      <div 
+      <div
         className={`fixed inset-y-0 left-0 z-40 w-64 bg-primary border-r border-muted-DEFAULT transition-transform transform ${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         } md:hidden flex flex-col overflow-hidden`}
       >
         <div className="flex items-center justify-center h-16 border-b border-muted-light">
-          <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="inline-block">
-            <Image 
-              src="/images/logo.png" 
-              alt="EcoStock" 
+          <Link
+            href="/dashboard"
+            onClick={() => setMobileMenuOpen(false)}
+            className="inline-block"
+          >
+            <Image
+              src="/images/logo.png"
+              alt="EcoStock"
               width={100}
               height={100}
               className="h-auto w-auto drop-shadow-lg hover:scale-105 transition-transform"
@@ -503,9 +575,9 @@ export default function Sidebar() {
       <div className="hidden md:flex h-full w-[256px] bg-primary border-r border-muted-DEFAULT flex-col overflow-hidden">
         <div className="flex items-center justify-center h-16 border-b border-muted-light">
           <Link href="/dashboard" className="inline-block">
-            <Image 
-              src="/images/logo.png" 
-              alt="EcoStock" 
+            <Image
+              src="/images/logo.png"
+              alt="EcoStock"
               width={120}
               height={120}
               className="h-auto w-auto drop-shadow-lg hover:scale-105 transition-transform"

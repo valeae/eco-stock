@@ -1,7 +1,7 @@
-export default function Proveedores() {
+export default function ListadoProveedores() {
     return (
         <>
-            <h1>Proveedores</h1>
+            <h1>Listado de Proveedores</h1>
         </>
     );
 }

@@ -19,7 +19,7 @@ type Categoria = {
   descripcion: string;
   tipo: string;
   vidaUtil: string;
-  modo: string;
+  presentación: string;
 };
 
 const CATEGORIAS_EJEMPLO: Categoria[] = [
@@ -29,7 +29,7 @@ const CATEGORIAS_EJEMPLO: Categoria[] = [
     descripcion: "Productos para el crecimiento de plantas",
     tipo: "Insumo",
     vidaUtil: "2 años",
-    modo: "Granulado",
+    presentación: "Manual",
   },
   {
     id: 2,
@@ -37,7 +37,7 @@ const CATEGORIAS_EJEMPLO: Categoria[] = [
     descripcion: "Herramientas agrícolas",
     tipo: "Equipo",
     vidaUtil: "5 años",
-    modo: "Manual",
+    presentación: "Manual",
   },
 ];
 
@@ -53,7 +53,7 @@ export default function CategoriasPage() {
     descripcion: "",
     tipo: "",
     vidaUtil: "",
-    modo: "",
+    presentación: "",
   });
 
   const inputNombreRef = useRef<HTMLInputElement>(null);
@@ -66,7 +66,7 @@ export default function CategoriasPage() {
         "descripcion",
         "tipo",
         "vidaUtil",
-        "modo",
+        "presentación",
       ])
     ) {
       return;
@@ -108,7 +108,7 @@ export default function CategoriasPage() {
       descripcion: "",
       tipo: "",
       vidaUtil: "",
-      modo: "",
+      presentación: "",
     });
     setFormVisible(false);
     setEditandoId(null);
@@ -121,7 +121,7 @@ export default function CategoriasPage() {
       descripcion: categoria.descripcion,
       tipo: categoria.tipo,
       vidaUtil: categoria.vidaUtil,
-      modo: categoria.modo,
+      presentación: categoria.presentación,
     });
     setFormVisible(true);
   };
@@ -191,10 +191,10 @@ export default function CategoriasPage() {
         setFormData((prev) => ({ ...prev, vidaUtil: String(value) })),
     },
     {
-      key: "modo",
+      key: "presentación",
       type: "text",
-      placeholder: "Modo",
-      value: formData.modo,
+      placeholder: "Presentación",
+      value: formData.presentación,
       onChange: (value) =>
         setFormData((prev) => ({ ...prev, modo: String(value) })),
     },
@@ -205,7 +205,7 @@ export default function CategoriasPage() {
     { key: "descripcion", title: "Descripción" },
     { key: "tipo", title: "Tipo" },
     { key: "vidaUtil", title: "Vida útil" },
-    { key: "modo", title: "Modo" },
+    { key: "presentación", title: "Presentación" },
   ];
 
   return (
