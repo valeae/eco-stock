@@ -2,24 +2,24 @@ from django.db import models
 
 # Create your models here.
 
-class categoria(models.Model):
+class Categoria(models.Model):
     idcategoria = models.IntegerField(primary_key=True)
     nombre = models.CharField(max_length=255,null=False)
-    descripcion = models.CharField(null=False)
-    tipo = models.CharField(null=False)
-    vida_util = models.CharField(null=False)
-    presentacion = models.CharField(null=False)
+    descripcion = models.CharField(max_length=255, null=False)
+    tipo = models.CharField(max_length=255, null=False)
+    vida_util = models.CharField(max_length=255, null=False)
+    presentacion = models.CharField(max_length=255, null=False)
 
 
-class unidades_medida(models.Model):
+class UnidadesMedida(models.Model):
     id = models.IntegerField(primary_key=True)
     nombre = models.CharField(max_length=255,null=False)
     abreviatura = models.CharField(max_length=255,null=False)
 
-class producto(models.Model):
+class Producto(models.Model):
     idproducto = models.IntegerField(primary_key=True)
     nombre = models.CharField(max_length=255,null=False)
-    descripcion = models.CharField(null=False)
-    lote = models.CharField(null=False)
-    idcategoria = models.ForeignKey(categoria.idcategoria)
-    unidad_medida_id = models.ForeignKey(unidades_medida.id)
+    descripcion = models.CharField(max_length=255, null=False)
+    lote = models.CharField(max_length=255, null=False)
+    idcategoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    unidad_medida_id = models.ForeignKey(UnidadesMedida, on_delete=models.CASCADE)

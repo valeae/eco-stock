@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 
-class proveedor(models.Model):
+class Proveedor(models.Model):
     idproveedor = models.BigIntegerField(primary_key=True)
     tipo = models.TextField(blank=True, null=True)
     nombre = models.TextField(blank=True, null=True)
