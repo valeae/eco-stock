@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
+import { Phone, Mail, MapPin } from "lucide-react";
+import ContactoModal from "@/components/shared/ModalContact";
 
 export default function Home() {
   const currentYear = new Date().getFullYear();
@@ -8,7 +9,7 @@ export default function Home() {
   return (
     <main className="flex flex-col min-h-screen bg-primary">
       {/* NavBar */}
-      <nav className="bg-white shadow-md py-2 px-6 fixed w-full z-10">
+      <nav className="bg-white shadow-md w-full z-10">
         <div className="container mx-auto flex justify-between items-center">
           <Link href="#">
             <Image
@@ -27,7 +28,10 @@ export default function Home() {
               <a href="#productos">Productos</a>
             </li>
             <li className="text-heading hover:text-accent font-medium cursor-pointer text-lg">
-              <a href="#contacto">Contacto</a>
+              <a href="#contacto">Documentación</a>
+            </li>
+            <li className="text-heading hover:text-accent font-medium cursor-pointer text-lg">
+              <ContactoModal />
             </li>
           </ul>
         </div>
@@ -53,7 +57,7 @@ export default function Home() {
             <Link href="/login">
               <button
                 type="button"
-                className="bg-accent hover:bg-[#5e6f5d] text-white font-medium py-3 px-8 rounded transition duration-300"
+                className="bg-accent hover:bg-accent-dark text-white font-medium py-3 px-8 rounded transition duration-300"
               >
                 Iniciar Sesión
               </button>
@@ -320,29 +324,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 px-6 bg-accent text-white">
-        <div className="container mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-6">
-            ¿Listo para optimizar tu inventario agrícola?
-          </h2>
-          <p className="text-lg mb-8 max-w-2xl mx-auto">
-            Únete a EcoStock y lleva el control de tu tienda agrícola al
-            siguiente nivel
-          </p>
-          <Link href="/register">
-            <button
-              type="button"
-              className="bg-white text-accent hover:bg-opacity-90 font-medium py-3 px-8 rounded-lg transition duration-300"
-            >
-              Comenzar ahora
-            </button>
-          </Link>
-        </div>
-      </section>
-
       {/* Footer */}
-      <footer id="contacto" className="bg-[#708871] text-white py-12 px-6">
+      <footer className="bg-accent text-white py-12 px-6">
         <div className="container mx-auto grid md:grid-cols-3 gap-10">
           {/* Columna 1: Información de contacto */}
           <div>
@@ -351,17 +334,17 @@ export default function Home() {
             </h4>
             <ul className="space-y-4">
               <li className="flex items-start">
-                <FaMapMarkerAlt className="mt-1 mr-3 text-white" />
+                <MapPin className="mt-1 mr-3 text-white" />
                 <span>Vereda El Progreso, Zona Rural, Colombia</span>
               </li>
               <li className="flex items-start">
-                <FaPhoneAlt className="mt-1 mr-3 text-white" />
+                <Phone className="mt-1 mr-3 text-white" />
                 <a href="tel:+573001112233" className="hover:underline">
                   +57 300 111 2233
                 </a>
               </li>
               <li className="flex items-start">
-                <FaEnvelope className="mt-1 mr-3 text-white" />
+                <Mail className="mt-1 mr-3 text-white" />
                 <a
                   href="mailto:contacto@ecostock.com"
                   className="hover:underline break-all"
@@ -383,12 +366,12 @@ export default function Home() {
                   type="email"
                   name="email"
                   placeholder="Tu correo electrónico"
-                  className="px-4 py-2 rounded-md bg-white text-[#708871] focus:outline-none focus:ring-2 focus:ring-[#708871] border border-[#708871]"
+                  className="px-4 py-2 rounded-md bg-white text-accent-dark focus:outline-none focus:ring-2 focus:ring-[accent] border border-accent"
                   required
                 />
                 <button
                   type="submit"
-                  className="bg-white text-[#708871] py-2 px-6 rounded-md hover:bg-[#708871] hover:text-white transition duration-300"
+                  className="bg-white text-accent hover:bg-opacity-90 font-medium py-2 px-6 rounded-md transition duration-300"
                 >
                   Suscribir
                 </button>
