@@ -1,0 +1,206 @@
+:root {
+  --green-primary: #708871;     /* Define el color verde principal de EcoStock como variable CSS */
+  --green-light: #BEC6A0;       /* Define un verde claro como variable */
+  --green-dark: #708871;        /* Define un verde oscuro (mismo que el principal) */
+  --gray-light: #f5f5f5;        /* Gris claro usado como fondo */
+  --gray-dark: #333;            /* Gris oscuro para texto o fondos */
+  --text: #212121;              /* Color de texto principal */
+  --white: #fff;                /* Blanco puro */
+}
+
+
+/* ========== DISEÑO GENERAL ========== */
+body {
+  font-family: 'Segoe UI', sans-serif; /* Fuente principal para el cuerpo del documento */
+  color: var(--text);/* Color del texto definido por la variable */
+  margin: 0;/* Elimina márgenes por defecto */
+  padding: 0;/* Elimina relleno por defecto */
+  background: var(--gray-light);/* Fondo gris claro para toda la página */
+}
+
+.layout {
+  display: flex;/* Utiliza Flexbox para disposición horizontal */
+  min-height: 100vh;/* Altura mínima de la vista completa (pantalla) */
+}
+
+
+/* ========== SIDEBAR ========== */
+.sidebar {
+  width: 280px;/* Ancho fijo */
+  background-color: var(--green-primary); /* Fondo verde principal */
+  color: var(--white);/* Texto blanco */
+  padding: 1.5rem 1rem;/* Espaciado interior */
+}
+
+.sidebar-title {
+  font-size: 1.25rem;/* Tamaño de fuente más grande */
+  font-weight: bold;/* Texto en negrita */
+  margin-bottom: .5rem;/* Margen inferior */
+  display: flex;/* Flexbox para alinear ícono y texto */
+  align-items: center;/* Centra verticalmente */
+  gap: 0.5rem;/* Espacio entre ícono y texto */
+}
+
+.sidebar .icon {
+  stroke-width: 1.5;/* Grosor de línea para íconos SVG */
+}
+
+/* Lista de navegación */
+.sidebar ul {
+  list-style: none;/* Elimina viñetas */
+  padding: 0;/* Sin relleno */
+  margin: 0;/* Sin márgenes */
+}
+
+/*Botones de navegación*/
+.nav-btn {
+  background: none;/* Fondo transparente */
+  border: none;/* Sin borde */
+  color: var(--white);/* Texto blanco */
+  text-align: left;/* Alineación del texto a la izquierda */
+  width: 100%;/* Ocupa todo el ancho disponible */
+  padding: 0.6rem 0.8rem;/* Espaciado interno */
+  margin-bottom: 0.3rem;/* Espacio entre botones */
+  font-size: 0.95rem;/* Tamaño de texto */
+  display: flex;/* Flexbox para alinear ícono y texto */
+  align-items: center;/* Centrado vertical */
+  gap: 0.6rem;/* Espacio entre ícono y texto */
+  border-radius: 6px;/* Bordes redondeados */
+  cursor: pointer;/* Cursor tipo puntero */
+}
+
+.nav-btn:hover {
+  background: var(--green-dark);/* Cambio de fondo al pasar el mouse */
+}
+
+.nav-btn.active {
+  background: var(--white);/* Fondo blanco si está activa */
+  color: var(--green-dark);/* Texto verde oscuro */
+  font-weight: bold;/* Texto en negrita */
+}
+
+.nav-btn.active .icon {
+  stroke: var(--green-dark);/* Ícono con trazo verde oscuro */
+}
+
+
+/* ========== CONTENIDO PRINCIPAL ========== */
+.content {
+  flex-grow: 1;/* Ocupa el espacio restante al lado del sidebar */
+  padding: 2rem;/* Relleno interno */
+  background: var(--white);/* Fondo blanco */
+}
+
+.content section {
+  max-width: 900px;/* Ancho máximo del contenido */
+  margin: 0 auto;/* Centrado horizontal */
+}
+
+.content h1 {
+  display: flex;/* Flexbox para alinear ícono y texto */
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.5rem;/* Tamaño del título */
+  color: var(--green-dark);/* Color verde oscuro */
+  margin-bottom: 1rem;
+}
+
+.content p,
+.content ul,
+.content ol {
+  font-size: 1rem;
+  line-height: 1.6;/* Altura de línea para mejor legibilidad */
+  color: var(--text);/* Color del texto */
+}
+
+.content code {
+  background: #eee;/* Fondo gris claro para código */
+  padding: 0.2rem 0.4rem;/* Relleno alrededor del código */
+  border-radius: 4px;/* Bordes redondeados */
+  font-family: monospace;/* Fuente de estilo monoespaciado */
+}
+
+
+/* ========== SELECTOR DE MANUAL PERSONALIZADO (Listbox) ========== */
+.manual-selector-custom {
+  padding: 0.5rem 1rem;
+  background:#eee;
+  border: 1px solid var(--green-primary);
+  border-radius: 6px;
+  color: var(--text);
+  cursor: pointer;
+  width: 200px;
+  font-size: 1rem;
+  text-align: left;
+}
+
+.manual-options {
+  position: absolute;/* Posicionamiento flotante */
+  z-index: 10;/* Se muestra por encima de otros elementos */
+  margin-top: 0.2rem;
+  background: var(--white);
+  border: 1px solid var(--green-primary);
+  border-radius: 6px;
+  width: 200px;
+  max-height: 200px;
+  overflow-y: auto;/* Scroll si excede la altura máxima */
+  box-shadow: 0 4px 6px rgba(185, 23, 23, 0.1); /* Sombra suave */
+  
+}
+
+.option-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.bg-option-hover {
+  background:#708871;/* Color de fondo al pasar sobre una opción de usuario y tecnico*/
+}
+
+
+/* ========== CABECERA ========== */
+.header-manual {
+  display: flex;/* Flexbox para distribución */
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background-color: #f8f9f8;/* Fondo muy claro */
+  border-bottom: 2px solid var(--green-primary); /* Borde inferior verde */
+}
+
+.logo-manual {
+  height: 100px;
+  width: 150px;/* Tamaño del logo */
+}
+
+.bienvenida {
+  font-size: 1.4rem;
+  color: var(--green-primary);/* Texto verde */
+  font-weight: bold;
+  margin: 0 auto;/* Centrado horizontal */
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;/* Layout vertical para pantallas pequeñas */
+  }
+
+  .sidebar {
+    width: 100%;/* Sidebar ocupa todo el ancho */
+  }
+
+  .content {
+    padding: 1rem;/* Relleno más pequeño */
+  }
+
+  .bienvenida {
+    font-size: 1rem;/* Texto más pequeño */
+    text-align: center;
+  }
+
+  .manual-selector-custom,
+  .manual-options {
+    width: 100%;/* Selector ocupa todo el ancho */
+  }
+}
