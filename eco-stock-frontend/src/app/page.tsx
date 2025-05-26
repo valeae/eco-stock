@@ -28,7 +28,7 @@ export default function Home() {
               <a href="#productos">Productos</a>
             </li>
             <li className="text-heading hover:text-accent font-medium cursor-pointer text-lg">
-              <a href="#contacto">Documentación</a>
+              <a href="/faq">Documentación</a>
             </li>
             <li className="text-heading hover:text-accent font-medium cursor-pointer text-lg">
               <ContactoModal />
