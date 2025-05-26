@@ -19,8 +19,17 @@ def crear_producto(request):
     else:
         return JsonResponse({'mensaje':'Metodo no permitido'})
 
-def actualizar_producto():
-    pass
+def actualizar_producto(request, idproducto):
+    if request.method == 'PATCH':
+        nuevos_datos = json.loads(request.body)
+        search = Producto.objects.get(pk=idproducto)
+
+        for campo, valor in nuevos_datos.items():
+            if hasattr(search, campo):
+                setattr(search, campo, valor)
+        search.save()
+
+        return JsonResponse({'mensaje': 'Producto actualizado correctamente'})
 
 def leer_producto():
     pass
