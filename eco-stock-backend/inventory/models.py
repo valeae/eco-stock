@@ -1,24 +1,10 @@
 from django.db import models
 from django.utils import timezone
-from productos.models import Producto
-from suppliers.models import Proveedor
+from productos.models import ProductoProveedor
 from users.models import Usuario
 # Create your models here.
 
-class ProductoProveedor(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    producto = models.ForeignKey(
-        Producto, 
-        on_delete=models.CASCADE,
-        db_column='producto_id',
-        to_field='idproducto'
-    )
-    proveedor = models.ForeignKey(
-        Proveedor, 
-        on_delete=models.CASCADE,
-        db_column='proveedor_id',
-        to_field='idproveedor'
-    )
+
 
 class Inventario(models.Model):
     id = models.BigAutoField(primary_key=True)
