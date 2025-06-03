@@ -9,15 +9,33 @@ export const metadata: Metadata = {
   description: "Registro en la plataforma EcoStock",
 };
 
-export default function RegistrerForm() {
+export default function RegisterForm() {
   const [nombreCompleto, setNombreCompleto] = useState("");
   const [correo, setCorreo] = useState("");
   const [contrasena, setContrasena] = useState("");
+  const [mensaje, setMensaje] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Maneja el envío del formulario de registro
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí irá tu lógica de autenticación
-    console.log("Register attempt:", { nombreCompleto, correo, contrasena });
+    setMensaje(""); // Limpia mensajes anteriores
+
+    try {
+      const res = await fetch("http://localhost:8000/users/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: nombreCompleto,
+          email: correo,
+          password: contrasena,
+        }),
+      });
+
+      const data = await res.json();
+      setMensaje(data.message || data.error || "Error al registrar usuario");
+    } catch (error) {
+      setMensaje("No se pudo conectar con el servidor");
+    }
   };
 
   return (
@@ -47,9 +65,7 @@ export default function RegistrerForm() {
                 onChange={(e) => setNombreCompleto(e.target.value)}
                 placeholder="Nombre completo"
                 required
-                className="appearance-none rounded-md w-full px-3 py-3 
-                  border border-transparent bg-muted text-heading placeholder-gray-500
-                  focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
+                className="appearance-none rounded-md w-full px-3 py-3 border border-transparent bg-muted text-heading placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
               />
 
               {/* Campo Correo */}
@@ -61,9 +77,7 @@ export default function RegistrerForm() {
                 onChange={(e) => setCorreo(e.target.value)}
                 placeholder="Correo electrónico"
                 required
-                className="appearance-none rounded-md w-full px-3 py-3 
-                  border border-transparent bg-muted text-heading placeholder-gray-500
-                  focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
+                className="appearance-none rounded-md w-full px-3 py-3 border border-transparent bg-muted text-heading placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
               />
 
               {/* Campo Contraseña */}
@@ -75,24 +89,26 @@ export default function RegistrerForm() {
                 onChange={(e) => setContrasena(e.target.value)}
                 placeholder="Contraseña"
                 required
-                className="appearance-none rounded-md w-full px-3 py-3 
-                  border border-transparent bg-muted text-heading placeholder-gray-500
-                  focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
+                className="appearance-none rounded-md w-full px-3 py-3 border border-transparent bg-muted text-heading placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
               />
 
               {/* Botón de registro */}
               <div>
                 <button
                   type="submit"
-                  className="group relative w-full flex justify-center py-3 px-4 
-                    border border-transparent text-sm font-medium rounded-md text-white
-                    bg-accent hover:bg-accent/90 focus:outline-none focus:ring-2
-                    focus:ring-offset-2 focus:ring-accent transition-colors"
+                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-accent hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"
                 >
                   Crear cuenta
                 </button>
               </div>
             </form>
+
+            {/* Mensaje de respuesta */}
+            {mensaje && (
+              <div className="mt-4 text-center text-sm text-red-200">
+                {mensaje}
+              </div>
+            )}
 
             {/* Enlace para ir al login */}
             <div className="mt-6 text-center">
