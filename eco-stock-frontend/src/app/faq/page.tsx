@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Listbox,
   ListboxButton,
@@ -72,13 +73,16 @@ export default function ManualPage() {
   return (
     <>
       <header className="flex items-center justify-between px-12 py-4 bg-[#f0f0e8] border-b-2 border-[#6a8275]">
-        <Image
-          src="/images/logo.png"
-          width={100}
-          height={100}
-          alt="EcoStock Logo"
-          className="h-[90px] w-[100px]"
-        />
+        <Link href="/" passHref>
+          <Image
+            src="/favicon.ico"
+            width={60}
+            height={60}
+            alt="EcoStock Logo"
+            className="mr-2 scale-[2]  cursor-pointer"
+            style={{ color: "transparent" }}
+          />
+        </Link>
         <h1 className="text-[#6a8275] text-xl font-bold text-center">
           {manual === "user"
             ? "¡Bienvenidos al Manual de Usuario de EcoStock!"
