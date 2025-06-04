@@ -37,7 +37,6 @@ class Producto(models.Model):
     nombre = models.CharField(max_length=255, null=False)
     descripcion = models.CharField(max_length=255, null=False)
     lote = models.CharField(max_length=255, null=False)
-    stock = models.IntegerField(default=0)
     idcategoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     unidad_medida_id = models.ForeignKey(UnidadesMedida, on_delete=models.CASCADE)
     
