@@ -1,99 +1,97 @@
-import json
-from django.http import JsonResponse
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.db.models import Q
 from .models import Proveedor
+from .serializers import ProveedorSerializer
 
-#create your views here
-
-def crear_proveedor(request):
-    if request.method == 'POST':
+class ProveedorViewSet(viewsets.ModelViewSet):
+    queryset = Proveedor.objects.all()
+    serializer_class = ProveedorSerializer
+    
+    def create(self, request):
+        """Crear proveedor"""
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def list(self, request):
+        """Listar proveedores"""
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def retrieve(self, request, pk=None):
+        """Obtener proveedor por ID"""
         try:
-            datos = json.loads(request.body)
-            idproveedor = datos.get('idproveedor')
-            tipo = datos.get('tipo')
-            nombre = datos.get('nombre')
-            direccion = datos.get('direccion')
-            estado = datos.get('estado', True)
-            correo = datos.get('correo')
-            telefono = datos.get('telefono')
-
-            Proveedor.objects.create(**datos)
-            return JsonResponse({'mensaje': 'Proveedor creado correctamente'}, status=201)
-        except json.JSONDecodeError:
-            return JsonResponse({'mensaje': 'Error en el formato JSON'}, status=400)
-        except Exception as e:
-            return JsonResponse({'mensaje': 'Error al crear el proveedor'}, status=500)
-    else:
-        return JsonResponse({'mensaje': 'Metodo no permitido'}, status=405)
-
-def leer_proveedor(request, idproveedor=None):
-    if request.method == 'GET':
-        try:
-            if idproveedor:
-                # Obtener un proveedor específico
-                proveedor = Proveedor.objects.get(pk=idproveedor)
-                datos_proveedor = {
-                    'idproveedor': proveedor.idproveedor,
-                    'tipo': proveedor.tipo,
-                    'nombre': proveedor.nombre,
-                    'direccion': proveedor.direccion,
-                    'estado': proveedor.estado,
-                    'correo': proveedor.correo,
-                    'telefono': proveedor.telefono
-                }
-                return JsonResponse({'proveedor': datos_proveedor})
-            else:
-                # Obtener todos los proveedores
-                proveedores = Proveedor.objects.all()
-                lista_proveedores = []
-                for proveedor in proveedores:
-                    datos_proveedor = {
-                        'idproveedor': proveedor.idproveedor,
-                        'tipo': proveedor.tipo,
-                        'nombre': proveedor.nombre,
-                        'direccion': proveedor.direccion,
-                        'estado': proveedor.estado,
-                        'correo': proveedor.correo,
-                        'telefono': proveedor.telefono
-                    }
-                    lista_proveedores.append(datos_proveedor)
-                return JsonResponse({'proveedores': lista_proveedores})
+            proveedor = self.get_object()
+            serializer = self.get_serializer(proveedor)
+            return Response(serializer.data)
         except Proveedor.DoesNotExist:
-            return JsonResponse({'mensaje': 'Proveedor no encontrado'}, status=404)
-        except Exception as e:
-            return JsonResponse({'mensaje': 'Error al obtener el proveedor'}, status=500)
-    else:
-        return JsonResponse({'mensaje': 'Método no permitido'}, status=405)
-
-def actualizar_proveedor(request, idproveedor):
-    if request.method == 'PATCH':
+            return Response({'error': 'Proveedor no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def update(self, request, pk=None):
+        """Actualizar proveedor"""
         try:
-            datos_actualizados = json.loads(request.body)
-            search = Proveedor.objects.get(pk=idproveedor)
-
-            for campo, valor in datos_actualizados.items():
-                if hasattr(search, campo):
-                    setattr(search, campo, valor)
-            search.save()
-
-            return JsonResponse({'mensaje': 'Proveedor actualizado correctamente'})
+            proveedor = self.get_object()
+            serializer = self.get_serializer(proveedor, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Proveedor.DoesNotExist:
-            return JsonResponse({'mensaje': 'Proveedor no encontrado'}, status=404)
-        except json.JSONDecodeError:
-            return JsonResponse({'mensaje': 'Error en el formato JSON'}, status=400)
-        except Exception as e:
-            return JsonResponse({'mensaje': 'Error al actualizar el proveedor'}, status=500)
-    else:
-        return JsonResponse({'mensaje': 'Método no permitido'}, status=405)
-
-def eliminar_proveedor(request, idproveedor):
-    if request.method == 'DELETE':
+            return Response({'error': 'Proveedor no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def destroy(self, request, pk=None):
+        """Eliminar proveedor"""
         try:
-            proveedor = Proveedor.objects.get(pk=idproveedor)
+            proveedor = self.get_object()
             proveedor.delete()
-            return JsonResponse({'mensaje': 'Proveedor eliminado correctamente'})
+            return Response({'mensaje': 'Proveedor eliminado correctamente'}, status=status.HTTP_204_NO_CONTENT)
         except Proveedor.DoesNotExist:
-            return JsonResponse({'mensaje': 'Proveedor no encontrado'}, status=404)
-        except Exception as e:
-            return JsonResponse({'mensaje': 'Error al eliminar el proveedor'}, status=500)
-    else:
-        return JsonResponse({'mensaje': 'Método no permitido'}, status=405)
+            return Response({'error': 'Proveedor no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+    
+    @action(detail=True, methods=['patch'])
+    def activar(self, request, pk=None):
+        """Activar proveedor"""
+        try:
+            proveedor = self.get_object()
+            proveedor.estado = True
+            proveedor.save()
+            return Response({'mensaje': 'Proveedor activado correctamente'})
+        except Proveedor.DoesNotExist:
+            return Response({'error': 'Proveedor no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+    
+    @action(detail=True, methods=['patch'])
+    def desactivar(self, request, pk=None):
+        """Desactivar proveedor"""
+        try:
+            proveedor = self.get_object()
+            proveedor.estado = False
+            proveedor.save()
+            return Response({'mensaje': 'Proveedor desactivado correctamente'})
+        except Proveedor.DoesNotExist:
+            return Response({'error': 'Proveedor no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+    
+    @action(detail=False, methods=['get'])
+    def activos(self, request):
+        """Obtener proveedores activos"""
+        proveedores = Proveedor.objects.filter(estado=True)
+        serializer = self.get_serializer(proveedores, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def buscar(self, request):
+        """Buscar proveedores"""
+        termino = request.query_params.get('q', '')
+        if termino:
+            proveedores = Proveedor.objects.filter(
+                Q(nombre__icontains=termino) |
+                Q(correo__icontains=termino) |
+                Q(telefono__icontains=termino)
+            )
+            serializer = self.get_serializer(proveedores, many=True)
+            return Response(serializer.data)
+        return Response({'error': 'Término de búsqueda requerido'}, status=status.HTTP_400_BAD_REQUEST)
