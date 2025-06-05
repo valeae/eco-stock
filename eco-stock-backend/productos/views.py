@@ -1,170 +1,235 @@
-import json
-from django.http import JsonResponse
-from django.shortcuts import render
-from .models import Producto, Categoria, UnidadesMedida
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.db.models import Q
+from .models import Categoria, UnidadesMedida, Producto, ProductoProveedor
+from .serializers import CategoriaSerializer, UnidadesMedidaSerializer, ProductoSerializer, ProductoProveedorSerializer
 
-# Create your views here.
-def crear_producto(request):
-    if request.method == 'POST':
+class CategoriaViewSet(viewsets.ModelViewSet):
+    queryset = Categoria.objects.all()
+    serializer_class = CategoriaSerializer
+    
+    def create(self, request):
+        """Crear categoría"""
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def list(self, request):
+        """Listar categorías"""
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def retrieve(self, request, pk=None):
+        """Obtener categoría por ID"""
         try:
-            datos = json.loads(request.body)
-            
-            # Extraer los datos correctamente
-            idproducto = datos.get('idproducto')
-            nombre = datos.get('nombre')
-            descripcion = datos.get('descripcion')
-            lote = datos.get('lote')
-            stock = datos.get('stock', 0)  # Default 0 si no se proporciona
-            idcategoria = datos.get('idcategoria')
-            unidad_medida_id = datos.get('unidad_medida_id')
-            
-            # Validar que existan la categoría y unidad de medida
-            try:
-                categoria = Categoria.objects.get(idcategoria=idcategoria)
-                unidad_medida = UnidadesMedida.objects.get(id=unidad_medida_id)
-            except Categoria.DoesNotExist:
-                return JsonResponse({'mensaje': 'Categoría no encontrada'}, status=400)
-            except UnidadesMedida.DoesNotExist:
-                return JsonResponse({'mensaje': 'Unidad de medida no encontrada'}, status=400)
-            
-            # Crear el producto
-            producto = Producto.objects.create(
-                idproducto=idproducto,
-                nombre=nombre,
-                descripcion=descripcion,
-                lote=lote,
-                stock=stock,
-                idcategoria=categoria,
-                unidad_medida_id=unidad_medida
-            )
-            
-            return JsonResponse({
-                'mensaje': 'Producto creado correctamente',
-                'producto_id': producto.idproducto
-            }, status=201)
-            
-        except json.JSONDecodeError:
-            return JsonResponse({'mensaje': 'Error en el formato JSON'}, status=400)
-        except Exception as e:
-            return JsonResponse({'mensaje': f'Error al crear el producto: {str(e)}'}, status=500)
-    else:
-        return JsonResponse({'mensaje': 'Método no permitido'}, status=405)
-
-
-def leer_producto(request, idproducto=None):
-    if request.method == 'GET':
+            categoria = self.get_object()
+            serializer = self.get_serializer(categoria)
+            return Response(serializer.data)
+        except Categoria.DoesNotExist:
+            return Response({'error': 'Categoría no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def update(self, request, pk=None):
+        """Actualizar categoría"""
         try:
-            if idproducto:
-                # Obtener un producto específico
-                producto = Producto.objects.select_related('idcategoria', 'unidad_medida_id').get(idproducto=idproducto)
-                datos_producto = {
-                    'idproducto': producto.idproducto,
-                    'nombre': producto.nombre,
-                    'descripcion': producto.descripcion,
-                    'lote': producto.lote,
-                    'stock': producto.stock,
-                    'categoria': {
-                        'id': producto.idcategoria.idcategoria,
-                        'nombre': producto.idcategoria.nombre,
-                        'descripcion': producto.idcategoria.descripcion,
-                        'tipo': producto.idcategoria.tipo,
-                        'vida_util': producto.idcategoria.vida_util,
-                        'presentacion': producto.idcategoria.presentacion
-                    },
-                    'unidad_medida': {
-                        'id': producto.unidad_medida_id.id,
-                        'nombre': producto.unidad_medida_id.nombre,
-                        'abreviatura': producto.unidad_medida_id.abreviatura
-                    }
-                }
-                return JsonResponse({'producto': datos_producto})
-            else:
-                # Obtener todos los productos
-                productos = Producto.objects.select_related('idcategoria', 'unidad_medida_id').all()
-                lista_productos = []
-                for producto in productos:
-                    datos_producto = {
-                        'idproducto': producto.idproducto,
-                        'nombre': producto.nombre,
-                        'descripcion': producto.descripcion,
-                        'lote': producto.lote,
-                        'stock': producto.stock,
-                        'categoria': {
-                            'id': producto.idcategoria.idcategoria,
-                            'nombre': producto.idcategoria.nombre,
-                            'descripcion': producto.idcategoria.descripcion,
-                            'tipo': producto.idcategoria.tipo,
-                            'vida_util': producto.idcategoria.vida_util,
-                            'presentacion': producto.idcategoria.presentacion
-                        },
-                        'unidad_medida': {
-                            'id': producto.unidad_medida_id.id,
-                            'nombre': producto.unidad_medida_id.nombre,
-                            'abreviatura': producto.unidad_medida_id.abreviatura
-                        }
-                    }
-                    lista_productos.append(datos_producto)
-                return JsonResponse({'productos': lista_productos})
-                
+            categoria = self.get_object()
+            serializer = self.get_serializer(categoria, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Categoria.DoesNotExist:
+            return Response({'error': 'Categoría no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def destroy(self, request, pk=None):
+        """Eliminar categoría"""
+        try:
+            categoria = self.get_object()
+            categoria.delete()
+            return Response({'mensaje': 'Categoría eliminada correctamente'}, status=status.HTTP_204_NO_CONTENT)
+        except Categoria.DoesNotExist:
+            return Response({'error': 'Categoría no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+class UnidadesMedidaViewSet(viewsets.ModelViewSet):
+    queryset = UnidadesMedida.objects.all()
+    serializer_class = UnidadesMedidaSerializer
+    
+    def create(self, request):
+        """Crear unidad de medida"""
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def list(self, request):
+        """Listar unidades de medida"""
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def retrieve(self, request, pk=None):
+        """Obtener unidad de medida por ID"""
+        try:
+            unidad = self.get_object()
+            serializer = self.get_serializer(unidad)
+            return Response(serializer.data)
+        except UnidadesMedida.DoesNotExist:
+            return Response({'error': 'Unidad de medida no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def update(self, request, pk=None):
+        """Actualizar unidad de medida"""
+        try:
+            unidad = self.get_object()
+            serializer = self.get_serializer(unidad, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except UnidadesMedida.DoesNotExist:
+            return Response({'error': 'Unidad de medida no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def destroy(self, request, pk=None):
+        """Eliminar unidad de medida"""
+        try:
+            unidad = self.get_object()
+            unidad.delete()
+            return Response({'mensaje': 'Unidad de medida eliminada correctamente'}, status=status.HTTP_204_NO_CONTENT)
+        except UnidadesMedida.DoesNotExist:
+            return Response({'error': 'Unidad de medida no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+class ProductoViewSet(viewsets.ModelViewSet):
+    queryset = Producto.objects.all()
+    serializer_class = ProductoSerializer
+    
+    def create(self, request):
+        """Crear producto"""
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def list(self, request):
+        """Listar productos"""
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def retrieve(self, request, pk=None):
+        """Obtener producto por ID"""
+        try:
+            producto = self.get_object()
+            serializer = self.get_serializer(producto)
+            return Response(serializer.data)
         except Producto.DoesNotExist:
-            return JsonResponse({'mensaje': 'Producto no encontrado'}, status=404)
-        except Exception as e:
-            return JsonResponse({'mensaje': f'Error al obtener el producto: {str(e)}'}, status=500)
-    else:
-        return JsonResponse({'mensaje': 'Método no permitido'}, status=405)
-
-
-def actualizar_producto(request, idproducto):
-    if request.method == 'PATCH':
+            return Response({'error': 'Producto no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def update(self, request, pk=None):
+        """Actualizar producto"""
         try:
-            datos_actualizados = json.loads(request.body)
-            producto = Producto.objects.get(idproducto=idproducto)
-            
-            # Campos que se pueden actualizar directamente
-            campos_directos = ['nombre', 'descripcion', 'lote', 'stock']
-            
-            for campo in campos_directos:
-                if campo in datos_actualizados:
-                    setattr(producto, campo, datos_actualizados[campo])
-            
-            # Manejar relaciones especiales
-            if 'idcategoria' in datos_actualizados:
-                try:
-                    categoria = Categoria.objects.get(idcategoria=datos_actualizados['idcategoria'])
-                    producto.idcategoria = categoria
-                except Categoria.DoesNotExist:
-                    return JsonResponse({'mensaje': 'Categoría no encontrada'}, status=400)
-            
-            if 'unidad_medida_id' in datos_actualizados:
-                try:
-                    unidad_medida = UnidadesMedida.objects.get(id=datos_actualizados['unidad_medida_id'])
-                    producto.unidad_medida_id = unidad_medida
-                except UnidadesMedida.DoesNotExist:
-                    return JsonResponse({'mensaje': 'Unidad de medida no encontrada'}, status=400)
-            
-            producto.save()
-            
-            return JsonResponse({'mensaje': 'Producto actualizado correctamente'})
-            
+            producto = self.get_object()
+            serializer = self.get_serializer(producto, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Producto.DoesNotExist:
-            return JsonResponse({'mensaje': 'Producto no encontrado'}, status=404)
-        except json.JSONDecodeError:
-            return JsonResponse({'mensaje': 'Error en el formato JSON'}, status=400)
-        except Exception as e:
-            return JsonResponse({'mensaje': f'Error al actualizar el producto: {str(e)}'}, status=500)
-    else:
-        return JsonResponse({'mensaje': 'Método no permitido'}, status=405)
-
-
-def eliminar_producto(request, idproducto):
-    if request.method == 'DELETE':
+            return Response({'error': 'Producto no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def destroy(self, request, pk=None):
+        """Eliminar producto"""
         try:
-            producto = Producto.objects.get(idproducto=idproducto)
+            producto = self.get_object()
             producto.delete()
-            return JsonResponse({'mensaje': 'Producto eliminado correctamente'})
+            return Response({'mensaje': 'Producto eliminado correctamente'}, status=status.HTTP_204_NO_CONTENT)
         except Producto.DoesNotExist:
-            return JsonResponse({'mensaje': 'Producto no encontrado'}, status=404)
-        except Exception as e:
-            return JsonResponse({'mensaje': f'Error al eliminar el producto: {str(e)}'}, status=500)
-    else:
-        return JsonResponse({'mensaje': 'Método no permitido'}, status=405)
+            return Response({'error': 'Producto no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+    
+    @action(detail=False, methods=['get'])
+    def buscar(self, request):
+        """Buscar productos"""
+        termino = request.query_params.get('q', '')
+        if termino:
+            productos = Producto.objects.filter(
+                Q(nombre__icontains=termino) |
+                Q(descripcion__icontains=termino) |
+                Q(lote__icontains=termino)
+            )
+            serializer = self.get_serializer(productos, many=True)
+            return Response(serializer.data)
+        return Response({'error': 'Término de búsqueda requerido'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['get'])
+    def por_categoria(self, request):
+        """Obtener productos por categoría"""
+        categoria_id = request.query_params.get('categoria_id')
+        if categoria_id:
+            productos = Producto.objects.filter(idcategoria=categoria_id)
+            serializer = self.get_serializer(productos, many=True)
+            return Response(serializer.data)
+        return Response({'error': 'ID de categoría requerido'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['get'])
+    def por_lote(self, request):
+        """Obtener productos por lote"""
+        lote = request.query_params.get('lote')
+        if lote:
+            productos = Producto.objects.filter(lote=lote)
+            serializer = self.get_serializer(productos, many=True)
+            return Response(serializer.data)
+        return Response({'error': 'Lote requerido'}, status=status.HTTP_400_BAD_REQUEST)
+
+class ProductoProveedorViewSet(viewsets.ModelViewSet):
+    queryset = ProductoProveedor.objects.all()
+    serializer_class = ProductoProveedorSerializer
+    
+    @action(detail=False, methods=['post'])
+    def asignar(self, request):
+        """Asignar proveedor a producto"""
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['get'])
+    def proveedores_producto(self, request):
+        """Obtener proveedores de un producto"""
+        producto_id = request.query_params.get('producto_id')
+        if producto_id:
+            asignaciones = ProductoProveedor.objects.filter(producto_id=producto_id)
+            serializer = self.get_serializer(asignaciones, many=True)
+            return Response(serializer.data)
+        return Response({'error': 'ID de producto requerido'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['get'])
+    def productos_proveedor(self, request):
+        """Obtener productos de un proveedor"""
+        proveedor_id = request.query_params.get('proveedor_id')
+        if proveedor_id:
+            asignaciones = ProductoProveedor.objects.filter(proveedor_id=proveedor_id)
+            serializer = self.get_serializer(asignaciones, many=True)
+            return Response(serializer.data)
+        return Response({'error': 'ID de proveedor requerido'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['delete'])
+    def eliminar_asignacion(self, request):
+        """Eliminar asignación producto-proveedor"""
+        producto_id = request.data.get('producto_id')
+        proveedor_id = request.data.get('proveedor_id')
+        
+        if producto_id and proveedor_id:
+            try:
+                asignacion = ProductoProveedor.objects.get(
+                    producto_id=producto_id,
+                    proveedor_id=proveedor_id
+                )
+                asignacion.delete()
+                return Response({'mensaje': 'Asignación eliminada correctamente'}, status=status.HTTP_204_NO_CONTENT)
+            except ProductoProveedor.DoesNotExist:
+                return Response({'error': 'Asignación no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': 'IDs de producto y proveedor requeridos'}, status=status.HTTP_400_BAD_REQUEST)

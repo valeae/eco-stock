@@ -1,10 +1,13 @@
-from productos import views
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import CategoriaViewSet, UnidadesMedidaViewSet, ProductoViewSet, ProductoProveedorViewSet
 
+router = DefaultRouter()
+router.register(r'categorias', CategoriaViewSet)
+router.register(r'unidades-medida', UnidadesMedidaViewSet)
+router.register(r'productos', ProductoViewSet)
+router.register(r'producto-proveedor', ProductoProveedorViewSet)
 
 urlpatterns = [
-    path('crear-producto/', views.crear_producto, name='crear_producto'),
-    path('actualizar-producto/', views.actualizar_producto, name='actualizar_inventario'),
-    path('leer-producto/', views.leer_producto, name='leer_inventario'),
-    path('eliminar-producto/', views.eliminar_producto, name='eliminar_inventario'),
+    path('', include(router.urls)),
 ]
