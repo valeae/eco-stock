@@ -66,6 +66,7 @@ class ProductosVencimiento(models.Model):
         db_table = 'productos_vencimiento'
         verbose_name = 'Producto Vencimiento'
         verbose_name_plural = 'Productos Vencimiento'
+        unique_together = [['producto_id', 'fecha_vencimiento']]
     
     def __str__(self):
         return f"{self.producto_id.nombre} - Vence: {self.fecha_vencimiento}"
