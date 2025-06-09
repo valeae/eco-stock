@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-vxf7ze#9laf#!vklde##5ol)5esgwo&o=dsancf9vwu-z(ai9k
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["http://localhost:3000","http://127.0.0.1:8000"]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '*']
 
 
 # Application definition
@@ -62,9 +62,26 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:8000"
+    "http://localhost:3000",  # Your React/frontend app
+    "http://127.0.0.1:3000",  # Alternative localhost format
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True # Only use this in development!
+
+CORS_ALLOWED_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
