@@ -121,77 +121,90 @@ class UsuarioViewSet(viewsets.ModelViewSet):
         try:
             logger.info(f"Datos recibidos para registro: {request.data}")
             
-            # Validar que se enviaron datos
             if not request.data:
                 return Response({
                     'error': 'No se enviaron datos'
                 }, status=status.HTTP_400_BAD_REQUEST)
             
-            # ✅ CORREGIDO: Usar directamente los datos del request
-            # Ya no necesitamos mapear porque el frontend ya envía los nombres correctos
             data = request.data.copy()
             
-            # Agregar rol por defecto si no viene en los datos
-            if 'idrol' not in data:
-                data['idrol'] = 2  # Rol por defecto
-                
+            # ✅ CORREGIR: Convertir idrol de entero a instancia de Rol
+            if 'idrol' in data:
+                try:
+                    rol_id = data['idrol']
+                    rol_instance = Rol.objects.get(idrol=rol_id)
+                    data['idrol'] = rol_instance
+                except Rol.DoesNotExist:
+                    return Response({
+                        'error': f'No existe el rol con ID {rol_id}'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # Rol por defecto
+                try:
+                    rol_instance = Rol.objects.get(idrol=2)
+                    data['idrol'] = rol_instance
+                except Rol.DoesNotExist:
+                    return Response({
+                        'error': 'No existe el rol por defecto'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                    
             logger.info(f"Datos procesados: {data}")
             
-            serializer = self.get_serializer(data=data)
-            if serializer.is_valid():
-                try:
-                    # Verificar si el email ya existe
-                    if Usuario.objects.filter(correo_electronico=serializer.validated_data['correo_electronico']).exists():
-                        return Response({
-                            'error': 'Ya existe un usuario con este correo electrónico'
-                        }, status=status.HTTP_400_BAD_REQUEST)
-                    
-                    # Hash de la contraseña
-                    serializer.validated_data['contraseña'] = make_password(
-                        serializer.validated_data['contraseña']
-                    )
-                    
-                    # Crear usuario
-                    usuario = serializer.save()
-                    logger.info(f"Usuario creado: {usuario}")
-                    
-                    # ✅ Crear token JWT personalizado
-                    class MockUser:
-                        def __init__(self, user_id):
-                            self.id = user_id
-                            self.pk = user_id
-                    
-                    mock_user = MockUser(usuario.id)
-                    refresh = RefreshToken.for_user(mock_user)
-                    
-                    # Serializar datos del usuario para la respuesta
-                    user_serializer = UsuarioSerializer(usuario)
-                    
-                    response_data = {
-                        'access': str(refresh.access_token),
-                        'refresh': str(refresh),
-                        'user': user_serializer.data,
-                        'message': 'Usuario registrado exitosamente'
-                    }
-                    
-                    logger.info(f"Respuesta enviada: {response_data}")
-                    
-                    return Response(response_data, status=status.HTTP_201_CREATED)
-                    
-                except Exception as e:
-                    logger.error(f"Error al crear usuario: {str(e)}")
-                    return Response({
-                        'error': f'Error al crear usuario: {str(e)}'
-                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            else:
-                logger.error(f"Errores de validación: {serializer.errors}")
+            # ✅ CORREGIR: Verificar email solo si no es null/vacío
+            email = data.get('correo_electronico')
+            if email and Usuario.objects.filter(correo_electronico=email).exists():
                 return Response({
-                    'error': 'Datos de validación incorrectos',
-                    'errors': serializer.errors
+                    'error': 'Ya existe un usuario con este correo electrónico'
                 }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # ✅ CORREGIR: Hash de contraseña antes de usar el serializer
+            if 'contraseña' in data:
+                data['contraseña'] = make_password(data['contraseña'])
+            
+            # ✅ CORREGIR: Crear usuario directamente (sin serializer para evitar problemas)
+            try:
+                usuario = Usuario.objects.create(
+                    nombre=data['nombre'],
+                    correo_electronico=data.get('correo_electronico'),
+                    contraseña=data['contraseña'],
+                    idrol=data['idrol']
+                )
+                logger.info(f"Usuario creado: {usuario}")
+                
+                # ✅ CORREGIR: Generar JWT correctamente
+                refresh = RefreshToken()
+                refresh['user_id'] = usuario.idusuario  # ✅ Usar idusuario, no id
+                
+                # Serializar datos del usuario para la respuesta
+                user_data = {
+                    'idusuario': usuario.idusuario,
+                    'nombre': usuario.nombre,
+                    'correo_electronico': usuario.correo_electronico,
+                    'idrol': usuario.idrol.idrol,
+                    'rol_nombre': usuario.idrol.nombre
+                }
+                
+                response_data = {
+                    'access': str(refresh.access_token),
+                    'refresh': str(refresh),
+                    'user': user_data,
+                    'message': 'Usuario registrado exitosamente'
+                }
+                
+                logger.info(f"Respuesta enviada: {response_data}")
+                
+                return Response(response_data, status=status.HTTP_201_CREATED)
+                
+            except Exception as e:
+                logger.error(f"Error al crear usuario: {str(e)}")
+                return Response({
+                    'error': f'Error al crear usuario: {str(e)}'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 
         except Exception as e:
             logger.error(f"Error inesperado en registro: {str(e)}")
+            import traceback
+            logger.error(f"Traceback completo: {traceback.format_exc()}")
             return Response({
                 'error': f'Error inesperado: {str(e)}'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
