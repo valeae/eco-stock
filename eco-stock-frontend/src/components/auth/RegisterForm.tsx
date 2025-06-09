@@ -1,111 +1,133 @@
 "use client";
 
-import type { Metadata } from "next";
-import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "Registro | EcoStock",
-  description: "Registro en la plataforma EcoStock",
-};
-
-export default function RegistrerForm() {
-  const [nombreCompleto, setNombreCompleto] = useState("");
+export default function RegisterForm() {
+  const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
   const [contrasena, setContrasena] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí irá tu lógica de autenticación
-    console.log("Register attempt:", { nombreCompleto, correo, contrasena });
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/users/register/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nombre,
+            correo_electronico: correo,
+            contraseña: contrasena,
+            idrol: 2,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail || data.error || data.message || "Error en el registro"
+        );
+      }
+
+      // Guardar el token y datos del usuario
+      localStorage.setItem("access_token", data.access);
+      localStorage.setItem("refresh_token", data.refresh);
+      localStorage.setItem("user_data", JSON.stringify(data.user));
+
+      // Redirigir al dashboard
+      router.push("/dashboard");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error desconocido");
+      console.error("Registration error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div>
-      {/* Overlay semitransparente */}
-      <div className="absolute inset-0 bg-black/30 z-0" />
-
-      {/* Contenedor principal */}
-      <div className="z-10 max-w-md w-full">
-        {/* Título */}
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold text-white drop-shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="p-8">
+          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
             Registro EcoStock
           </h2>
-        </div>
 
-        {/* Tarjeta de registro */}
-        <div className="bg-heading/70 backdrop-blur-md rounded-lg shadow-xl overflow-hidden">
-          <div className="px-8 py-8">
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              {/* Campo Nombre */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nombre completo
+              </label>
               <input
-                id="nombreCompleto"
-                name="nombreCompleto"
                 type="text"
-                value={nombreCompleto}
-                onChange={(e) => setNombreCompleto(e.target.value)}
-                placeholder="Nombre completo"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
-                className="appearance-none rounded-md w-full px-3 py-3 
-                  border border-transparent bg-muted text-heading placeholder-gray-500
-                  focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
               />
+            </div>
 
-              {/* Campo Correo */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Correo electrónico
+              </label>
               <input
-                id="correoElectronico"
-                name="correoElectronico"
                 type="email"
                 value={correo}
                 onChange={(e) => setCorreo(e.target.value)}
-                placeholder="Correo electrónico"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
-                className="appearance-none rounded-md w-full px-3 py-3 
-                  border border-transparent bg-muted text-heading placeholder-gray-500
-                  focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
               />
+            </div>
 
-              {/* Campo Contraseña */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Contraseña
+              </label>
               <input
-                id="contrasena"
-                name="contrasena"
                 type="password"
                 value={contrasena}
                 onChange={(e) => setContrasena(e.target.value)}
-                placeholder="Contraseña"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
-                className="appearance-none rounded-md w-full px-3 py-3 
-                  border border-transparent bg-muted text-heading placeholder-gray-500
-                  focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
+                minLength={6}
               />
-
-              {/* Botón de registro */}
-              <div>
-                <button
-                  type="submit"
-                  className="group relative w-full flex justify-center py-3 px-4 
-                    border border-transparent text-sm font-medium rounded-md text-white
-                    bg-accent hover:bg-accent/90 focus:outline-none focus:ring-2
-                    focus:ring-offset-2 focus:ring-accent transition-colors"
-                >
-                  Crear cuenta
-                </button>
-              </div>
-            </form>
-
-            {/* Enlace para ir al login */}
-            <div className="mt-6 text-center">
-              <p className="text-sm text-white">
-                ¿Ya tienes una cuenta?{" "}
-                <Link
-                  href="/login"
-                  className="font-medium text-white hover:text-primary transition-colors"
-                >
-                  Iniciar sesión
-                </Link>
-              </p>
             </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+                loading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
+            >
+              {loading ? "Registrando..." : "Crear cuenta"}
+            </button>
+          </form>
+
+          <div className="mt-4 text-center text-sm text-gray-600">
+            ¿Ya tienes cuenta?{" "}
+            <Link href="/login" className="text-green-600 hover:underline">
+              Inicia sesión
+            </Link>
           </div>
         </div>
       </div>
