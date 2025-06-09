@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password, check_password
+from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Rol, Usuario
 from .serializers import RolSerializer, UsuarioSerializer, UsuarioCreateSerializer
 
@@ -55,11 +56,12 @@ class RolViewSet(viewsets.ModelViewSet):
         except Rol.DoesNotExist:
             return Response({'error': 'Rol no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
+
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     
     def get_serializer_class(self):
-        if self.action == 'create':
+        if self.action == 'create' or self.action == 'register':
             return UsuarioCreateSerializer
         return UsuarioSerializer
     
@@ -111,6 +113,46 @@ class UsuarioViewSet(viewsets.ModelViewSet):
         except Usuario.DoesNotExist:
             return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
     
+    @action(detail=False, methods=['post'], url_path='register')
+    def register(self, request):
+        """Registro de usuario con JWT - NUEVO ENDPOINT"""
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                # Verificar si el email ya existe
+                if Usuario.objects.filter(correo_electronico=serializer.validated_data['correo_electronico']).exists():
+                    return Response({
+                        'error': 'Ya existe un usuario con este correo electrónico'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                
+                # Hash de la contraseña
+                serializer.validated_data['contraseña'] = make_password(
+                    serializer.validated_data['contraseña']
+                )
+                
+                # Crear usuario
+                usuario = serializer.save()
+                
+                # Generar tokens JWT
+                refresh = RefreshToken.for_user(usuario)
+                
+                # Serializar datos del usuario para la respuesta
+                user_serializer = UsuarioSerializer(usuario)
+                
+                return Response({
+                    'access': str(refresh.access_token),
+                    'refresh': str(refresh),
+                    'user': user_serializer.data,
+                    'message': 'Usuario registrado exitosamente'
+                }, status=status.HTTP_201_CREATED)
+                
+            except Exception as e:
+                return Response({
+                    'error': f'Error al crear usuario: {str(e)}'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     @action(detail=False, methods=['post'])
     def autenticar(self, request):
         """Autenticar usuario"""
@@ -120,10 +162,15 @@ class UsuarioViewSet(viewsets.ModelViewSet):
         try:
             usuario = Usuario.objects.get(correo_electronico=correo)
             if check_password(contraseña, usuario.contraseña):
+                # Generar tokens JWT para login también
+                refresh = RefreshToken.for_user(usuario)
                 serializer = self.get_serializer(usuario)
+                
                 return Response({
-                    'mensaje': 'Autenticación exitosa',
-                    'usuario': serializer.data
+                    'access': str(refresh.access_token),
+                    'refresh': str(refresh),
+                    'user': serializer.data,
+                    'mensaje': 'Autenticación exitosa'
                 })
             else:
                 return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)

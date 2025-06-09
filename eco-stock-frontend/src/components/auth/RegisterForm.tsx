@@ -19,7 +19,7 @@ export default function RegisterForm() {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/users/register/",
+        "http://localhost:8000/api/usuarios/register/",
         {
           method: "POST",
           headers: {
