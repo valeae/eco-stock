@@ -9,9 +9,8 @@ import {
   Clipboard,
   Package,
   BarChart2,
-  Truck,
+  Building,
   Layers,
-  Settings,
   Menu,
   X,
 } from "lucide-react";
@@ -28,7 +27,7 @@ export default function Sidebar() {
     productos: false,
     inventario: false,
     reportes: false,
-    proveedores: false,
+    entidades: false,
     configuracion: false,
   });
 
@@ -40,7 +39,7 @@ export default function Sidebar() {
   const isProductosSubpath = currentPath.startsWith("/dashboard/productos");
   const isInventarioSubpath = currentPath.startsWith("/dashboard/inventario");
   const isReportesSubpath = currentPath.startsWith("/dashboard/reportes");
-  const isProveedoresSubpath = currentPath.startsWith("/dashboard/proveedores");
+  const isEntidadesSubpath = currentPath.startsWith("/dashboard/entidades");
   const isConfiguracionSubpath = currentPath.startsWith(
     "/dashboard/configuracion"
   );
@@ -55,7 +54,7 @@ export default function Sidebar() {
         productos: isProductosSubpath,
         inventario: isInventarioSubpath,
         reportes: isReportesSubpath,
-        proveedores: isProveedoresSubpath,
+        entidades: isEntidadesSubpath,
         configuracion: isConfiguracionSubpath,
       });
     }
@@ -65,7 +64,7 @@ export default function Sidebar() {
     isProductosSubpath,
     isInventarioSubpath,
     isReportesSubpath,
-    isProveedoresSubpath,
+    isEntidadesSubpath,
     isConfiguracionSubpath,
   ]);
 
@@ -116,9 +115,9 @@ export default function Sidebar() {
       {/* Inicio - Simplified without submenus */}
       <li>
         <Link
-          href="/dashboard/inicio"
+          href="/dashboard"
           className={`flex items-center w-full p-3 rounded-md transition-colors font-medium ${
-            currentPath === "/dashboard/inicio"
+            currentPath === "/dashboard/page"
               ? "bg-accent-light text-heading-DEFAULT"
               : "text-white hover:bg-accent-light"
           }`}
@@ -203,39 +202,39 @@ export default function Sidebar() {
         ])}
       </li>
 
-      {/* Proveedores */}
+      {/* Entidades */}
       <li>
         <button
           type="button"
-          onClick={() => toggleMenu("proveedores")}
+          onClick={() => toggleMenu("entidades")}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
-              toggleMenu("proveedores");
+              toggleMenu("entidades");
             }
           }}
           className={`flex items-center w-full p-3 rounded-md transition-colors font-medium ${
-            isProveedoresSubpath
+            isEntidadesSubpath
               ? "bg-accent-light text-heading-DEFAULT"
               : "text-white hover:bg-accent-light"
           }`}
-          aria-expanded={expandedMenus.proveedores ? "true" : "false"}
+          aria-expanded={expandedMenus.entidades ? "true" : "false"}
         >
-          <Truck
+          <Building
             size={20}
             className={`flex-shrink-0 ${
-              isProveedoresSubpath ? "text-heading-DEFAULT" : "text-white"
+              isEntidadesSubpath ? "text-heading-DEFAULT" : "text-white"
             }`}
           />
           <span
             className={`ml-3 flex-1 text-left ${
-              isProveedoresSubpath ? "text-heading-DEFAULT" : "text-white"
+              isEntidadesSubpath ? "text-heading-DEFAULT" : "text-white"
             }`}
           >
-            Proveedores
+            Entidades
           </span>
           <svg
             className={`w-4 h-4 ml-auto transition-transform ${
-              expandedMenus.proveedores ? "rotate-180" : ""
+              expandedMenus.entidades ? "rotate-180" : ""
             }`}
             fill="none"
             stroke="currentColor"
@@ -250,8 +249,9 @@ export default function Sidebar() {
             />
           </svg>
         </button>
-        {renderSubmenu("proveedores", [
-          { href: "/dashboard/proveedores", text: "Listado de proveedores" },
+        {renderSubmenu("entidades", [
+          { href: "/dashboard/entidades/proveedores", text: "Proveedores" },
+          { href: "/dashboard/entidades/distribuidores", text: "Distribuidores" },
         ])}
       </li>
 
@@ -378,10 +378,6 @@ export default function Sidebar() {
             href: "/dashboard/reportes/movimientos-periodo",
             text: "Movimientos por periodo",
           },
-          {
-            href: "/dashboard/reportes/ingresos-proveedores",
-            text: "Ingresos por proveedor",
-          },
         ])}
       </li>
 
@@ -435,73 +431,8 @@ export default function Sidebar() {
         {renderSubmenu("catalogos", [
           { href: "/dashboard/catalogos/categorias", text: "Categorías" },
           {
-            href: "/dashboard/catalogos/tipos-movimiento",
-            text: "Tipos de movimiento",
-          },
-          {
             href: "/dashboard/catalogos/unidades-medida",
             text: "Unidades de medida",
-          },
-        ])}
-      </li>
-
-      {/* Configuración*/}
-      <li>
-        <button
-          type="button"
-          onClick={() => toggleMenu("configuracion")}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              toggleMenu("configuracion");
-            }
-          }}
-          className={`flex items-center w-full p-3 rounded-md transition-colors font-medium ${
-            isConfiguracionSubpath
-              ? "bg-accent-light text-heading-DEFAULT"
-              : "text-white hover:bg-accent-light"
-          }`}
-          aria-expanded={expandedMenus.configuracion ? "true" : "false"}
-        >
-          <Settings
-            size={20}
-            className={`flex-shrink-0 ${
-              isConfiguracionSubpath ? "text-heading-DEFAULT" : "text-white"
-            }`}
-          />
-          <span
-            className={`ml-3 flex-1 text-left ${
-              isConfiguracionSubpath ? "text-heading-DEFAULT" : "text-white"
-            }`}
-          >
-            Configuración
-          </span>
-          <svg
-            className={`w-4 h-4 ml-auto transition-transform ${
-              expandedMenus.configuracion ? "rotate-180" : ""
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </button>
-        {renderSubmenu("configuracion", [
-          { href: "/dashboard/configuracion/usuarios", text: "Usuarios" },
-          { href: "/dashboard/configuracion/roles", text: "Roles" },
-          {
-            href: "/dashboard/configuracion/notificaciones",
-            text: "Notificaciones",
-          },
-          {
-            href: "/dashboard/configuracion/backup",
-            text: "Copias de seguridad",
           },
         ])}
       </li>
