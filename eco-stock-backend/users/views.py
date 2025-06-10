@@ -209,10 +209,12 @@ class UsuarioViewSet(viewsets.ModelViewSet):
                 'error': f'Error inesperado: {str(e)}'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], url_path='autenticar')
     def autenticar(self, request):
         """Autenticar usuario - CORREGIDO"""
         try:
+            logger.info(f"Datos recibidos para autenticación: {request.data}")
+            
             # Permitir tanto email como correo_electronico
             correo = request.data.get('correo_electronico') or request.data.get('email')
             contraseña = request.data.get('contraseña') or request.data.get('password')
@@ -222,31 +224,53 @@ class UsuarioViewSet(viewsets.ModelViewSet):
                     'error': 'Email y contraseña son requeridos'
                 }, status=status.HTTP_400_BAD_REQUEST)
             
-            usuario = Usuario.objects.get(correo_electronico=correo)
-            if check_password(contraseña, usuario.contraseña):
-                # Usar el mismo método de token que en register
-                class MockUser:
-                    def __init__(self, user_id):
-                        self.id = user_id
-                        self.pk = user_id
-                
-                mock_user = MockUser(usuario.id)
-                refresh = RefreshToken.for_user(mock_user)
-                serializer = self.get_serializer(usuario)
-                
+            try:
+                usuario = Usuario.objects.get(correo_electronico=correo)
+                logger.info(f"Usuario encontrado: {usuario.nombre}")
+            except Usuario.DoesNotExist:
                 return Response({
+                    'error': 'Credenciales inválidas'  # No revelar si el usuario existe o no
+                }, status=status.HTTP_401_UNAUTHORIZED)
+            
+            # Verificar contraseña
+            if check_password(contraseña, usuario.contraseña):
+                logger.info("Contraseña correcta, generando tokens...")
+                
+                # ✅ CORREGIR: Generar JWT correctamente
+                refresh = RefreshToken()
+                refresh['user_id'] = usuario.idusuario  # Usar idusuario como clave
+                
+                # Datos del usuario para la respuesta
+                user_data = {
+                    'idusuario': usuario.idusuario,
+                    'nombre': usuario.nombre,
+                    'correo_electronico': usuario.correo_electronico,
+                    'idrol': usuario.idrol.idrol,
+                    'rol_nombre': usuario.idrol.nombre
+                }
+                
+                response_data = {
                     'access': str(refresh.access_token),
                     'refresh': str(refresh),
-                    'user': serializer.data,
+                    'user': user_data,
                     'message': 'Autenticación exitosa'
-                })
-            else:
-                return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+                }
                 
-        except Usuario.DoesNotExist:
-            return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+                logger.info("Autenticación exitosa")
+                return Response(response_data, status=status.HTTP_200_OK)
+            else:
+                logger.warning("Contraseña incorrecta")
+                return Response({
+                    'error': 'Credenciales inválidas'
+                }, status=status.HTTP_401_UNAUTHORIZED)
+                
         except Exception as e:
-            return Response({'error': f'Error en autenticación: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Error inesperado en autenticación: {str(e)}")
+            import traceback
+            logger.error(f"Traceback completo: {traceback.format_exc()}")
+            return Response({
+                'error': 'Error interno del servidor'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     @action(detail=True, methods=['patch'])
     def cambiar_contraseña(self, request, pk=None):
