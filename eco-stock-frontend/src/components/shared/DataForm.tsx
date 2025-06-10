@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 
 export interface FormField {
   key: string;
-  type: "text" | "number" | "date" | "select" | "textarea";
+  type: "text" | "number" | "date" | "select" | "textarea" | "email";
   placeholder?: string;
   label?: string;
   value: string | number | undefined;

@@ -19,6 +19,7 @@ import { useFormValidation } from "@/hooks/useFormValidation";
 
 type Producto = {
   id: number;
+  lote: string;
   nombre: string;
   cantidad: string;
   proveedor: string;
@@ -29,6 +30,7 @@ type Producto = {
 const PRODUCTOS_EJEMPLO: Producto[] = [
   {
     id: 1,
+    lote: "AB1",
     nombre: "Abono orgánico compostado",
     cantidad: "5",
     proveedor: "AgroNatur",
@@ -37,6 +39,7 @@ const PRODUCTOS_EJEMPLO: Producto[] = [
   },
   {
     id: 2,
+    lote: "FN2",
     nombre: "Fertilizante nitrogenado",
     cantidad: "3",
     proveedor: "FertiPlus",
@@ -45,6 +48,7 @@ const PRODUCTOS_EJEMPLO: Producto[] = [
   },
   {
     id: 3,
+    lote: "IN3",
     nombre: "Insecticida natural",
     cantidad: "2",
     proveedor: "BioAgro",
@@ -63,6 +67,7 @@ export default function CommingExpiration() {
 
   const [formData, setFormData] = useState<Omit<Producto, "id" | "notificado">>(
     {
+      lote: "",
       nombre: "",
       cantidad: "",
       proveedor: "",
@@ -193,6 +198,7 @@ export default function CommingExpiration() {
 
   const resetFormulario = () => {
     setFormData({
+      lote: "",
       nombre: "",
       cantidad: "",
       proveedor: "",
@@ -205,6 +211,7 @@ export default function CommingExpiration() {
   const handleEditar = (producto: Producto) => {
     setEditandoId(producto.id);
     setFormData({
+      lote: producto.lote,
       nombre: producto.nombre,
       cantidad: producto.cantidad,
       proveedor: producto.proveedor,
@@ -223,6 +230,7 @@ export default function CommingExpiration() {
 
     setTimeout(() => {
       const headers = [
+        "Lote",
         "Nombre",
         "Cantidad",
         "Proveedor",
@@ -243,6 +251,14 @@ export default function CommingExpiration() {
   }, [productosFiltrados]);
 
   const formFields: FormField[] = [
+    {
+      key: "lote",
+      type: "text",
+      placeholder: "Lote",
+      value: formData.lote,
+      onChange: (val) =>
+        setFormData((prev) => ({ ...prev, lote: String(val) })),
+    },
     {
       key: "nombre",
       type: "text",
@@ -278,6 +294,7 @@ export default function CommingExpiration() {
   ];
 
   const columns: TableColumn<Producto>[] = [
+    { key: "lote", title: "Lote" },
     { key: "nombre", title: "Nombre" },
     { key: "cantidad", title: "Cantidad" },
     { key: "proveedor", title: "Proveedor" },

@@ -8,7 +8,6 @@ import {
   Filter,
 } from "lucide-react";
 import DropDownEvolution from "@/components/dashboard/DropDownEvolution";
-import ProgressBar from "@/components/dashboard/ProgressBar";
 
 // data.ts
 export type Producto = {
@@ -221,27 +220,6 @@ export default function TopProducts() {
                       <span>{Math.abs(producto.cambio)}%</span>
                     </div>
                   </div>
-                </div>
-
-                <div className="mb-3">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-heading-dark">
-                      Nivel de rotación
-                    </span>
-                    <span className="text-sm text-muted-dark">
-                      {producto.rotacion}% del máximo
-                    </span>
-                  </div>
-                  <ProgressBar
-                    valor={producto.rotacion}
-                    color={
-                      producto.rotacion >= 80
-                        ? "bg-success-DEFAULT"
-                        : producto.rotacion >= 60
-                        ? "bg-warning-DEFAULT"
-                        : "bg-danger-DEFAULT"
-                    }
-                  />
                 </div>
               </div>
 

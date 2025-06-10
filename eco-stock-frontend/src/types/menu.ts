@@ -4,7 +4,7 @@ export type MenuKey =
 | "productos"
 | "inventario"
 | "reportes"
-| "proveedores"
+| "entidades"
 | "configuracion"
 
 export type ExpandedMenus = Record<MenuKey, boolean>;

@@ -31,7 +31,7 @@ export default function FilterButtons<T>({
       return `${baseClasses} ${option.color} text-white`;
     }
     
-    return `${baseClasses} bg-white text-gray-700 border border-gray-300 hover:bg-gray-50`;
+    return `${baseClasses} bg-primary-dark text-white hover:${option.color} hover:text-white`;
   };
 
   return (

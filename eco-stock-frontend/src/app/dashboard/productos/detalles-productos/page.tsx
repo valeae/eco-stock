@@ -1,9 +1,10 @@
+// pages/DetallesProductosPage.tsx
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
-//Components
+// Components
 import PageLayout from "@/components/shared/PageLayout";
 import SearchAndActions from "@/components/shared/SearchAndActions";
 import DataForm, { type FormField } from "@/components/shared/DataForm";
@@ -13,7 +14,7 @@ import DataTable, {
 } from "@/components/shared/DataTable";
 import { exportToCSV } from "@/components/shared/ExportUtils";
 
-//Hooks
+// Hooks
 import { useFormValidation } from "@/hooks/useFormValidation";
 
 type ProductoDetalle = {
@@ -63,8 +64,7 @@ const PRODUCTOS_EJEMPLO: ProductoDetalle[] = [
 ];
 
 export default function DetallesProductosPage() {
-  const [productos, setProductos] =
-    useState<ProductoDetalle[]>(PRODUCTOS_EJEMPLO);
+  const [productos, setProductos] = useState<ProductoDetalle[]>(PRODUCTOS_EJEMPLO);
   const [busqueda, setBusqueda] = useState("");
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [formVisible, setFormVisible] = useState(false);
@@ -237,7 +237,7 @@ export default function DetallesProductosPage() {
             item.stock <= 10 ? "text-warning-DEFAULT" : ""
           }`}
         >
-          {value}
+          {String(value)}
         </span>
       ),
     },
@@ -249,11 +249,6 @@ export default function DetallesProductosPage() {
       ),
     },
   ];
-
-  // Función para aplicar clase de fila personalizada
-  const getRowClassName = (producto: ProductoDetalle) => {
-    return producto.stock <= 10 ? "bg-red-50" : "";
-  };
 
   return (
     <PageLayout title="Detalles de Productos">
@@ -286,7 +281,12 @@ export default function DetallesProductosPage() {
         onEdit={handleEditar}
         onDelete={handleEliminar}
         emptyMessage="No se encontraron productos."
-        rowClassName={getRowClassName}
+        deleteModalConfig={{
+          title: "Eliminar Producto",
+          message: "¿Estás seguro de que deseas eliminar este producto?",
+          getItemName: (product) => product.nombre
+        }}
+        className="mt-6"
       />
     </PageLayout>
   );
