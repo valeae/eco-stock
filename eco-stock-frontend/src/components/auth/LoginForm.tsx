@@ -93,60 +93,122 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="p-8">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-            Iniciar sesión EcoStock
+    <div>
+      {/* Overlay semitransparente */}
+      <div className="absolute inset-0 bg-black/30 z-0" />
+
+      <div className="z-10 max-w-md w-full">
+        {/* Logo y título */}
+        <div className="text-center mb-6">
+          <h2 className="text-3xl font-bold text-white drop-shadow-lg">
+            Bienvenido EcoStock
           </h2>
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
-              <strong>Error:</strong> {error}
+        </div>
+
+        {/* Tarjeta de login */}
+        <div className="bg-heading/70 backdrop-blur-md rounded-lg shadow-xl overflow-hidden">
+          <div className="px-8 py-8">
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              {/* Campo de correo electrónico */}
+              <div>
+                <label htmlFor="email" className="sr-only">
+                  Correo electrónico
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  value={correo}
+                  onChange={(e) => setCorreo(e.target.value)}
+                  required
+                  className="appearance-none rounded-md relative block w-full px-3 py-3 
+                            border border-transparent bg-muted text-heading placeholder-gray-500
+                            focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
+                  placeholder="Correo electrónico"
+                />
+              </div>
+
+              {/* Campo de contraseña */}
+              <div>
+                <label htmlFor="password" className="sr-only">
+                  Contraseña
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={contrasena}
+                  onChange={(e) => setContrasena(e.target.value)}
+                  required
+                  className="appearance-none rounded-md relative block w-full px-3 py-3 
+                            border border-transparent bg-muted text-heading placeholder-gray-500
+                            focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
+                  placeholder="Contraseña"
+                />
+              </div>
+
+              {/* Recordarme y olvidé contraseña */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    id="remember-me"
+                    name="remember-me"
+                    type="checkbox"
+                    className="h-4 w-4 rounded bg-muted border-transparent focus:ring-accent"
+                  />
+                  <label
+                    htmlFor="remember-me"
+                    className="ml-2 block text-sm text-white"
+                  >
+                    Recordarme
+                  </label>
+                </div>
+
+                <div className="text-sm">
+                  <Link
+                    href="/forgot-password"
+                    className="font-medium text-white hover:text-primary transition-colors"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </Link>
+                </div>
+              </div>
+
+              {/* Botón de iniciar sesión */}
+              <div>
+                <button
+                  type="submit"
+                  className="group relative w-full flex justify-center py-3 px-4 
+                            border border-transparent text-sm font-medium rounded-md text-white
+                            bg-accent hover:bg-accent/90 focus:outline-none focus:ring-2
+                            focus:ring-offset-2 focus:ring-accent transition-colors"
+                >
+                  {loading ? "Iniciando sesión..." : "Iniciar sesión"}
+                </button>
+              </div>
+            </form>
+
+            {/* Enlace para registro */}
+            <div className="mt-6 text-center">
+              <p className="text-sm text-white">
+                ¿No tienes una cuenta?{" "}
+                <Link
+                  href="/register"
+                  className="font-medium text-white hover:text-primary transition-colors"
+                >
+                  Registrarse
+                </Link>
+              </p>
             </div>
-          )}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Correo electrónico
-              </label>
-              <input
-                type="email"
-                value={correo}
-                onChange={(e) => setCorreo(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
-                disabled={loading}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Contraseña
-              </label>
-              <input
-                type="password"
-                value={contrasena}
-                onChange={(e) => setContrasena(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
-                minLength={6}
-                disabled={loading}
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors ${
-                loading ? "opacity-70 cursor-not-allowed" : ""
-              }`}
-            >
-              {loading ? "Ingresando..." : "Iniciar sesión"}
-            </button>
-          </form>
-          <div className="mt-4 text-center text-sm text-gray-600">
-            ¿No tienes cuenta?{" "}
-            <Link href="/register" className="text-green-600 hover:underline">
-              Regístrate
-            </Link>
+
+            {/* Mostrar error si existe */}
+            {error && (
+              <div className="mt-4 text-center text-sm text-red-400">
+                {error}
+              </div>
+            )}
           </div>
         </div>
       </div>

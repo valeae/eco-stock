@@ -102,73 +102,101 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="p-8">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+    <div>
+      {/* Overlay semitransparente */}
+      <div className="absolute inset-0 bg-black/30 z-0" />
+
+      {/* Contenedor principal */}
+      <div className="z-10 max-w-md w-full">
+        {/* Título */}
+        <div className="text-center mb-6">
+          <h2 className="text-3xl font-bold text-white drop-shadow-lg">
             Registro EcoStock
           </h2>
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
-              <strong>Error:</strong> {error}
-            </div>
-          )}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre completo
-              </label>
+        </div>
+
+        {/* Tarjeta de registro */}
+        <div className="bg-heading/70 backdrop-blur-md rounded-lg shadow-xl overflow-hidden">
+          <div className="px-8 py-8">
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              {/* Campo Nombre */}
               <input
+                id="nombreCompleto"
+                name="nombreCompleto"
                 type="text"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Nombre completo"
                 required
-                disabled={loading}
+                className="appearance-none rounded-md w-full px-3 py-3 
+                  border border-transparent bg-muted text-heading placeholder-gray-500
+                  focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Correo electrónico
-              </label>
+
+              {/* Campo Correo */}
               <input
+                id="correoElectronico"
+                name="correoElectronico"
                 type="email"
                 value={correo}
                 onChange={(e) => setCorreo(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Correo electrónico"
                 required
                 disabled={loading}
+                className="appearance-none rounded-md w-full px-3 py-3 
+                  border border-transparent bg-muted text-heading placeholder-gray-500
+                  focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Contraseña
-              </label>
+
+              {/* Campo Contraseña */}
               <input
+                id="contrasena"
+                name="contrasena"
                 type="password"
                 value={contrasena}
                 onChange={(e) => setContrasena(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Contraseña"
                 required
-                minLength={6}
                 disabled={loading}
+                className="appearance-none rounded-md w-full px-3 py-3 
+                  border border-transparent bg-muted text-heading placeholder-gray-500
+                  focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
               />
+
+              {/* Botón de registro */}
+              <div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="group relative w-full flex justify-center py-3 px-4 
+                    border border-transparent text-sm font-medium rounded-md text-white
+                    bg-accent hover:bg-accent/90 focus:outline-none focus:ring-2
+                    focus:ring-offset-2 focus:ring-accent transition-colors"
+                >
+                  {loading ? "Registrando..." : "Crear cuenta"}
+                </button>
+              </div>
+            </form>
+
+            {/* Enlace para ir al login */}
+            <div className="mt-6 text-center">
+              <p className="text-sm text-white">
+                ¿Ya tienes una cuenta?{" "}
+                <Link
+                  href="/login"
+                  className="font-medium text-white hover:text-primary transition-colors"
+                >
+                  Iniciar sesión
+                </Link>
+              </p>
             </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors ${
-                loading ? "opacity-70 cursor-not-allowed" : ""
-              }`}
-            >
-              {loading ? "Registrando..." : "Crear cuenta"}
-            </button>
-          </form>
-          <div className="mt-4 text-center text-sm text-gray-600">
-            ¿Ya tienes cuenta?{" "}
-            <Link href="/login" className="text-green-600 hover:underline">
-              Inicia sesión
-            </Link>
+
+            {/* Mostrar error si existe */}
+            {error && (
+              <div className="mt-4 text-center text-sm text-red-400">
+                {error}
+              </div>
+            )}
           </div>
         </div>
       </div>
