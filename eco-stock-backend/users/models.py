@@ -19,7 +19,7 @@ class Usuario(models.Model):
     nombre = models.CharField(max_length=255, null=False)
     correo_electronico = models.EmailField(blank=True, null=True)
     contraseña = models.CharField(max_length=255, null=False)
-    idrol = models.ForeignKey(Rol, on_delete=models.CASCADE)
+    idrol = models.ForeignKey(Rol, on_delete=models.CASCADE, db_column='idrol')
     
     class Meta:
         db_table = 'usuario'
