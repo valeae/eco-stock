@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
-import ContactoModal from "@/components/modal-contact";
+import ContactoModal from "@/components/shared/ModalContact";
 
 export default function Home() {
   const currentYear = new Date().getFullYear();
@@ -28,7 +28,7 @@ export default function Home() {
               <a href="#productos">Productos</a>
             </li>
             <li className="text-heading hover:text-accent font-medium cursor-pointer text-lg">
-              <a href="#contacto">Documentación</a>
+              <a href="/faq">Documentación</a>
             </li>
             <li className="text-heading hover:text-accent font-medium cursor-pointer text-lg">
               <ContactoModal />

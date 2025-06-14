@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { User, Settings, LogOut, UserCog } from "lucide-react";
+import { User, Settings, LogOut} from "lucide-react";
 import Link from "next/link";
 
 interface HeaderProps {
@@ -57,28 +57,21 @@ export default function HeaderSection({ timeString, dateString }: HeaderProps) {
             className="flex items-center bg-white/10 px-3 py-2 rounded-full hover:bg-white/20 transition-colors cursor-pointer"
             onClick={() => setIsOpen(!isOpen)}
           >
-            <div className="h-8 w-8 rounded-full bg-white text-primary-DEFAULT font-bold flex items-center justify-center mr-2 shadow-sm">
+            <div className="h-8 w-8 rounded-full text-primary-DEFAULT font-bold flex items-center justify-center mr-2 shadow-sm">
               <User size={18} />
             </div>
-            <span className="hidden md:inline font-medium">UserName</span>
+            <span className="hidden md:inline font-medium">Administrador</span>
           </button>
 
           {/* Menú desplegable */}
           {isOpen && (
             <div className="absolute right-0 top-16 bg-white text-gray-800 rounded-xl shadow-xl w-52 z-50 animate-fade-in border border-gray-200">
               <Link
-                href="/dashboard/cuenta"
-                className="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 transition-colors"
-              >
-                <UserCog size={18} className="text-primary" />
-                <span className="text-sm">Mi cuenta</span>
-              </Link>
-              <Link
-                href="/dashboard/configuracion"
+                href="/dashboard/perfil"
                 className="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 transition-colors"
               >
                 <Settings size={18} className="text-primary" />
-                <span className="text-sm">Configuración</span>
+                <span className="text-sm">Perfil</span>
               </Link>
               <div className="border-t border-gray-200 my-1" />
               <button

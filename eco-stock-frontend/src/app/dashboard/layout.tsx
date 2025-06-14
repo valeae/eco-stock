@@ -1,5 +1,5 @@
 import Head from "next/head";
-import Sidebar from "@/components/sidebar";
+import Sidebar from "@/components/layout/Sidebar";
 
 export default function Layout({
   children,
