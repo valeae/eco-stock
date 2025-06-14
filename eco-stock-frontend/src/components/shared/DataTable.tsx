@@ -265,8 +265,8 @@ export default function DataTable<T extends { id: number | string }>({
                     </td>
                   ))}
                   {(allActions.length > 0 || customActions) && (
-                    <td className="py-4 px-6 text-center">
-                      <div className="flex justify-center gap-2 items-center flex-wrap">
+                    <td className="py-4 px-6 text-center w-[120px]">
+                      <div className="flex justify-center gap-2 items-center">
                         {/* Render de acciones por defecto */}
                         {allActions.map((action) => {
                           if (action.show && !action.show(item)) return null;
@@ -286,7 +286,7 @@ export default function DataTable<T extends { id: number | string }>({
 
                         {/* Render de customActions si existe */}
                         {customActions && (
-                          <div className="flex gap-2 flex-wrap">
+                          <div className="flex gap-2">
                             {customActions(item)}
                           </div>
                         )}

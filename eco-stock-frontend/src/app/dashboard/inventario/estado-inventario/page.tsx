@@ -433,7 +433,7 @@ export default function ListadoInventario() {
               ? "Desactivar"
               : producto.estadoInventario === "inactivo"
               ? "Suspender"
-              : "Activar"}
+              : "Reactivar"}
           </button>
         )}
       />

@@ -17,54 +17,21 @@ import { exportToCSV } from "@/components/shared/ExportUtils";
 // Hooks
 import { useFormValidation } from "@/hooks/useFormValidation";
 
-type ProductoDetalle = {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  stock: number;
-  estado: string;
-};
-
-const PRODUCTOS_EJEMPLO: ProductoDetalle[] = [
-  {
-    id: 1,
-    nombre: "Fertilizante Orgánico",
-    descripcion: "Mejora la fertilidad del suelo",
-    stock: 42,
-    estado: "Disponible",
-  },
-  {
-    id: 2,
-    nombre: "Pesticida Ecológico",
-    descripcion: "Controla plagas de forma natural",
-    stock: 18,
-    estado: "Disponible",
-  },
-  {
-    id: 3,
-    nombre: "Semillas de Maíz",
-    descripcion: "Variedad resistente a sequías",
-    stock: 65,
-    estado: "Disponible",
-  },
-  {
-    id: 4,
-    nombre: "Abono Mineral",
-    descripcion: "Rico en nutrientes esenciales",
-    stock: 27,
-    estado: "Disponible",
-  },
-  {
-    id: 5,
-    nombre: "Kit de Análisis de Suelo",
-    descripcion: "Herramienta para análisis básico",
-    stock: 8,
-    estado: "Agotado",
-  },
-];
+//Types and mocks
+import { PRODUCTOS_EJEMPLO } from "@/mocks/productos";
+import { type Producto } from "@/types/producto";
+import { calcularStockDesdeMovimientos } from "@/utils/calcular-stock";
 
 export default function DetallesProductosPage() {
-  const [productos, setProductos] = useState<ProductoDetalle[]>(PRODUCTOS_EJEMPLO);
+  const [productos, setProductos] = useState<Producto[]>(() => {
+    const stockPorProducto = calcularStockDesdeMovimientos(PRODUCTOS_EJEMPLO);
+
+    return PRODUCTOS_EJEMPLO.map((p) => ({
+      ...p,
+      stock: stockPorProducto[p.nombre] ?? 0,
+    }));
+  });
+
   const [busqueda, setBusqueda] = useState("");
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [formVisible, setFormVisible] = useState(false);
@@ -75,6 +42,8 @@ export default function DetallesProductosPage() {
     descripcion: "",
     stock: 0,
     estado: "",
+    categoria: "",
+    proveedor: "",
   });
 
   const inputNombreRef = useRef<HTMLInputElement>(null);
@@ -120,7 +89,7 @@ export default function DetallesProductosPage() {
       toast.success("Producto actualizado");
       setEditandoId(null);
     } else {
-      const nuevoProducto: ProductoDetalle = {
+      const nuevoProducto: Producto = {
         id: Date.now(),
         ...formData,
       };
@@ -168,7 +137,10 @@ export default function DetallesProductosPage() {
     setTimeout(() => {
       const headers = ["Nombre", "Descripción", "Stock", "Estado"];
       const success = exportToCSV(
-        productosFiltrados,
+        productosFiltrados.map((p) => ({
+          ...p,
+          estado: p.estado === "Disponible" ? "Disponible" : "Agotado",
+        })),
         headers,
         "productos-inventario.csv"
       );
@@ -225,7 +197,7 @@ export default function DetallesProductosPage() {
     },
   ];
 
-  const columns: TableColumn<ProductoDetalle>[] = [
+  const columns: TableColumn<Producto>[] = [
     { key: "nombre", title: "Nombre" },
     { key: "descripcion", title: "Descripción" },
     {
