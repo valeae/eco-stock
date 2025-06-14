@@ -1,454 +1,180 @@
+from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q
-from django.utils import timezone
 from datetime import datetime, timedelta
-from .models import Inventario, MovimientoInventario, DetalleEntradaSalida, ProductosVencimiento
-from .serializers import InventarioSerializer, MovimientoInventarioSerializer, DetalleEntradaSalidaSerializer, ProductosVencimientoSerializer
+import random
 
-class InventarioViewSet(viewsets.ModelViewSet):
-    queryset = Inventario.objects.all()
-    serializer_class = InventarioSerializer
-    
-    def create(self, request):
-        """Crear inventario"""
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    @action(detail=False, methods=['get'])
-    def por_producto(self, request):
-        """Obtener inventario por producto"""
-        producto_id = request.query_params.get('producto_id')
-        if producto_id:
-            try:
-                inventario = Inventario.objects.get(producto_id=producto_id)
-                serializer = self.get_serializer(inventario)
-                return Response(serializer.data)
-            except Inventario.DoesNotExist:
-                return Response({'error': 'Inventario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
-        return Response({'error': 'ID de producto requerido'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    @action(detail=True, methods=['patch'])
-    def actualizar_cantidad(self, request, pk=None):
-        """Actualizar cantidad en inventario"""
-        try:
-            inventario = self.get_object()
-            nueva_cantidad = request.data.get('cantidad')
-            
-            if nueva_cantidad is not None:
-                inventario.cantidad = nueva_cantidad
-                inventario.fecha_actualizacion = timezone.now()
-                inventario.save()
-                
-                serializer = self.get_serializer(inventario)
-                return Response(serializer.data)
-            return Response({'error': 'Cantidad requerida'}, status=status.HTTP_400_BAD_REQUEST)
-        except Inventario.DoesNotExist:
-            return Response({'error': 'Inventario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
-    
-    @action(detail=False, methods=['get'])
-    def stock_actual(self, request):
-        """Obtener stock actual de un producto"""
-        producto_id = request.query_params.get('producto_id')
-        if producto_id:
-            try:
-                inventario = Inventario.objects.get(producto_id=producto_id)
-                return Response({'producto_id': producto_id, 'stock_actual': inventario.cantidad})
-            except Inventario.DoesNotExist:
-                return Response({'producto_id': producto_id, 'stock_actual': 0})
-        return Response({'error': 'ID de producto requerido'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    def list(self, request):
-        """Listar inventario completo"""
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-    
-    @action(detail=False, methods=['get'])
-    def bajo_stock(self, request):
-        """Obtener productos con bajo stock"""
-        limite = request.query_params.get('limite', 10)
-        try:
-            limite = int(limite)
-            inventarios = Inventario.objects.filter(cantidad__lte=limite)
-            serializer = self.get_serializer(inventarios, many=True)
-            return Response(serializer.data)
-        except ValueError:
-            return Response({'error': 'Límite debe ser un número'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    @action(detail=False, methods=['get'])
-    def sin_stock(self, request):
-        """Obtener productos sin stock"""
-        inventarios = Inventario.objects.filter(cantidad=0)
-        serializer = self.get_serializer(inventarios, many=True)
-        return Response(serializer.data)
+from .models import Categoria, UnidadesMedida, Producto, ProductoProveedor
+from .serializers import (
+    CategoriaSerializer, UnidadesMedidaSerializer, 
+    ProductoSerializer, ProductoProveedorSerializer,
+    ProductoDashboardSerializer, ProductoCreateUpdateSerializer,
+    ProductoVencimientoSerializer
+)
 
-class MovimientoInventarioViewSet(viewsets.ModelViewSet):
-    queryset = MovimientoInventario.objects.all()
-    serializer_class = MovimientoInventarioSerializer
+class CategoriaViewSet(viewsets.ModelViewSet):
+    queryset = Categoria.objects.all()
+    serializer_class = CategoriaSerializer
+    search_fields = ['nombre', 'descripcion', 'tipo']
+    ordering_fields = ['nombre', 'tipo']
+    ordering = ['nombre']
+
+class UnidadesMedidaViewSet(viewsets.ModelViewSet):
+    queryset = UnidadesMedida.objects.all()
+    serializer_class = UnidadesMedidaSerializer
+    search_fields = ['nombre', 'abreviatura']
+    ordering_fields = ['nombre']
+    ordering = ['nombre']
+
+class ProductoViewSet(viewsets.ModelViewSet):
+    queryset = Producto.objects.select_related('idcategoria', 'unidad_medida_id').all()
+    serializer_class = ProductoSerializer
+    search_fields = ['nombre', 'descripcion', 'lote']
+    ordering_fields = ['nombre', 'idcategoria__nombre']
+    ordering = ['nombre']
     
-    @action(detail=False, methods=['post'])
-    def registrar_entrada(self, request):
-        """Registrar entrada de inventario"""
-        producto_id = request.data.get('producto_id')
-        cantidad = request.data.get('cantidad')
-        usuario_id = request.data.get('usuario_id')
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return ProductoCreateUpdateSerializer
+        elif self.action == 'dashboard':
+            return ProductoDashboardSerializer
+        elif self.action == 'proximos_vencer':
+            return ProductoVencimientoSerializer
+        return ProductoSerializer
+    
+    @action(detail=False, methods=['get'])
+    def dashboard(self, request):
+        """
+        Endpoint para el dashboard de productos con información completa
+        """
+        productos = self.get_queryset()
         
-        if not all([producto_id, cantidad, usuario_id]):
-            return Response({'error': 'Producto, cantidad y usuario son requeridos'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            # Obtener o crear inventario
-            inventario, created = Inventario.objects.get_or_create(
-                producto_id=producto_id,
-                defaults={'cantidad': 0}
+        # Aplicar filtros de búsqueda si existen
+        search = request.query_params.get('search', '')
+        if search:
+            productos = productos.filter(
+                Q(nombre__icontains=search) | 
+                Q(descripcion__icontains=search) |
+                Q(idcategoria__nombre__icontains=search)
             )
-            
-            # Crear movimiento
-            movimiento = MovimientoInventario.objects.create(
-                tipo_movimiento='ENTRADA',
-                idusuario_id=usuario_id,
-                inventario_id=inventario
-            )
-            
-            # Actualizar cantidad en inventario
-            inventario.cantidad += int(cantidad)
-            inventario.fecha_actualizacion = timezone.now()
-            inventario.save()
-            
-            # Crear detalle
-            DetalleEntradaSalida.objects.create(
-                cantidad=cantidad,
-                identradainventario=movimiento
-            )
-            
-            serializer = self.get_serializer(movimiento)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-            
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    
-    @action(detail=False, methods=['post'])
-    def registrar_salida(self, request):
-        """Registrar salida de inventario"""
-        producto_id = request.data.get('producto_id')
-        cantidad = request.data.get('cantidad')
-        usuario_id = request.data.get('usuario_id')
         
-        if not all([producto_id, cantidad, usuario_id]):
-            return Response({'error': 'Producto, cantidad y usuario son requeridos'}, status=status.HTTP_400_BAD_REQUEST)
+        # Simular datos de stock y estado para el dashboard
+        productos_data = []
+        for producto in productos:
+            # Generar datos simulados para stock y estado
+            stock_simulado = random.randint(0, 100)
+            if stock_simulado == 0:
+                estado = 'Agotado'
+            elif stock_simulado <= 10:
+                estado = 'Bajo stock'
+            else:
+                estado = 'Disponible'
+            
+            # Crear data enriquecida
+            producto_dict = ProductoDashboardSerializer(producto).data
+            producto_dict['stock'] = stock_simulado
+            producto_dict['estado'] = estado
+            productos_data.append(producto_dict)
         
-        try:
-            # Verificar inventario disponible
-            inventario = Inventario.objects.get(producto_id=producto_id)
-            
-            if inventario.cantidad < int(cantidad):
-                return Response({'error': 'Stock insuficiente'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            # Crear movimiento
-            movimiento = MovimientoInventario.objects.create(
-                tipo_movimiento='SALIDA',
-                idusuario_id=usuario_id,
-                inventario_id=inventario
-            )
-            
-            # Actualizar cantidad en inventario
-            inventario.cantidad -= int(cantidad)
-            inventario.fecha_actualizacion = timezone.now()
-            inventario.save()
-            
-            # Crear detalle
-            DetalleEntradaSalida.objects.create(
-                cantidad=cantidad,
-                identradainventario=movimiento
-            )
-            
-            serializer = self.get_serializer(movimiento)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-            
-        except Inventario.DoesNotExist:
-            return Response({'error': 'Producto no encontrado en inventario'}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({
+            'count': len(productos_data),
+            'results': productos_data
+        })
     
     @action(detail=False, methods=['get'])
-    def por_producto(self, request):
-        """Obtener movimientos de un producto"""
-        producto_id = request.query_params.get('producto_id')
-        if producto_id:
-            try:
-                inventario = Inventario.objects.get(producto_id=producto_id)
-                movimientos = MovimientoInventario.objects.filter(inventario_id=inventario)
-                serializer = self.get_serializer(movimientos, many=True)
-                return Response(serializer.data)
-            except Inventario.DoesNotExist:
-                return Response({'error': 'Producto no encontrado en inventario'}, status=status.HTTP_404_NOT_FOUND)
-        return Response({'error': 'ID de producto requerido'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    @action(detail=False, methods=['get'])
-    def por_fecha(self, request):
-        """Obtener movimientos por rango de fechas"""
-        fecha_inicio = request.query_params.get('fecha_inicio')
-        fecha_fin = request.query_params.get('fecha_fin')
+    def proximos_vencer(self, request):
+        """
+        Endpoint para productos próximos a vencer
+        """
+        productos = self.get_queryset()
         
-        if fecha_inicio and fecha_fin:
-            try:
-                fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
-                fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
-                
-                movimientos = MovimientoInventario.objects.filter(
-                    fecha__range=[fecha_inicio, fecha_fin]
-                )
-                serializer = self.get_serializer(movimientos, many=True)
-                return Response(serializer.data)
-            except ValueError:
-                return Response({'error': 'Formato de fecha inválido (YYYY-MM-DD)'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'error': 'Fechas de inicio y fin requeridas'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    def list(self, request):
-        """Obtener historial de movimientos"""
-        queryset = self.get_queryset().order_by('-fecha')
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-    
-    @action(detail=False, methods=['get'])
-    def por_usuario(self, request):
-        """Obtener movimientos por usuario"""
-        usuario_id = request.query_params.get('usuario_id')
-        if usuario_id:
-            movimientos = MovimientoInventario.objects.filter(idusuario_id=usuario_id)
-            serializer = self.get_serializer(movimientos, many=True)
-            return Response(serializer.data)
-        return Response({'error': 'ID de usuario requerido'}, status=status.HTTP_400_BAD_REQUEST)
-
-class DetalleEntradaSalidaViewSet(viewsets.ModelViewSet):
-    queryset = DetalleEntradaSalida.objects.all()
-    serializer_class = DetalleEntradaSalidaSerializer
-    
-    def create(self, request):
-        """Crear detalle"""
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    @action(detail=False, methods=['get'])
-    def por_movimiento(self, request):
-        """Obtener detalles por movimiento"""
-        movimiento_id = request.query_params.get('movimiento_id')
-        if movimiento_id:
-            detalles = DetalleEntradaSalida.objects.filter(identradainventario_id=movimiento_id)
-            serializer = self.get_serializer(detalles, many=True)
-            return Response(serializer.data)
-        return Response({'error': 'ID de movimiento requerido'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    def update(self, request, pk=None):
-        """Actualizar detalle"""
-        try:
-            detalle = self.get_object()
-            serializer = self.get_serializer(detalle, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except DetalleEntradaSalida.DoesNotExist:
-            return Response({'error': 'Detalle no encontrado'}, status=status.HTTP_404_NOT_FOUND)
-
-class ProductosVencimientoViewSet(viewsets.ModelViewSet):
-    queryset = ProductosVencimiento.objects.all()
-    serializer_class = ProductosVencimientoSerializer
-    
-    def create(self, request):
-        """Registrar vencimiento de producto"""
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    @action(detail=False, methods=['get'])
-    def por_vencer(self, request):
-        """Obtener productos por vencer"""
-        dias_adelante = request.query_params.get('dias', 30)
-        try:
-            dias_adelante = int(dias_adelante)
-            fecha_limite = timezone.now().date() + timedelta(days=dias_adelante)
+        # Aplicar filtros
+        search = request.query_params.get('search', '')
+        filtro_estado = request.query_params.get('estado', 'todos')
+        
+        if search:
+            productos = productos.filter(
+                Q(nombre__icontains=search) | 
+                Q(productoproveedor__proveedor__nombre__icontains=search)
+            ).distinct()
+        
+        # Simular datos de vencimiento
+        productos_vencimiento = []
+        for producto in productos:
+            # Generar fecha de vencimiento aleatoria
+            dias_aleatorios = random.randint(-30, 90)  # Entre 30 días atrás y 90 días adelante
+            fecha_vencimiento = datetime.now().date() + timedelta(days=dias_aleatorios)
             
-            productos = ProductosVencimiento.objects.filter(
-                fecha_vencimiento__lte=fecha_limite,
-                fecha_vencimiento__gte=timezone.now().date()
-            ).order_by('fecha_vencimiento')
+            # Calcular estado de vencimiento
+            dias_restantes = (fecha_vencimiento - datetime.now().date()).days
+            if dias_restantes < 0:
+                estado_vencimiento = 'Vencido'
+            elif dias_restantes <= 30:
+                estado_vencimiento = 'Próximo a vencer'
+            else:
+                estado_vencimiento = 'Vigente'
             
-            serializer = self.get_serializer(productos, many=True)
-            return Response(serializer.data)
-        except ValueError:
-            return Response({'error': 'Días debe ser un número'}, status=status.HTTP_400_BAD_REQUEST)
+            # Aplicar filtro de estado
+            if filtro_estado != 'todos':
+                if filtro_estado == 'proximos' and estado_vencimiento != 'Próximo a vencer':
+                    continue
+                elif filtro_estado == 'vencidos' and estado_vencimiento != 'Vencido':
+                    continue
+            
+            # Solo incluir productos próximos a vencer o vencidos para este endpoint
+            if estado_vencimiento in ['Próximo a vencer', 'Vencido']:
+                producto_dict = ProductoVencimientoSerializer(producto).data
+                producto_dict['fecha_vencimiento'] = fecha_vencimiento.strftime('%Y-%m-%d')
+                producto_dict['dias_restantes'] = dias_restantes
+                producto_dict['estado_vencimiento'] = estado_vencimiento
+                producto_dict['cantidad'] = str(random.randint(1, 10))
+                productos_vencimiento.append(producto_dict)
+        
+        # Ordenar por días restantes (vencidos primero, luego próximos a vencer)
+        productos_vencimiento.sort(key=lambda x: x['dias_restantes'])
+        
+        return Response({
+            'count': len(productos_vencimiento),
+            'results': productos_vencimiento
+        })
     
     @action(detail=False, methods=['get'])
-    def vencidos(self, request):
-        """Obtener productos vencidos"""
-        productos = ProductosVencimiento.objects.filter(
-            fecha_vencimiento__lt=timezone.now().date()
-        ).order_by('fecha_vencimiento')
+    def estadisticas(self, request):
+        """
+        Endpoint para estadísticas del dashboard
+        """
+        total_productos = self.get_queryset().count()
+        total_categorias = Categoria.objects.count()
         
-        serializer = self.get_serializer(productos, many=True)
-        return Response(serializer.data)
-    
-    @action(detail=True, methods=['patch'])
-    def marcar_notificado(self, request, pk=None):
-        """Marcar producto como notificado"""
-        try:
-            producto = self.get_object()
-            producto.notificado = True
-            producto.save()
-            
-            serializer = self.get_serializer(producto)
-            return Response(serializer.data)
-        except ProductosVencimiento.DoesNotExist:
-            return Response({'error': 'Producto no encontrado'}, status=status.HTTP_404_NOT_FOUND)
-    
-    @action(detail=False, methods=['get'])
-    def no_notificados(self, request):
-        """Obtener productos no notificados"""
-        productos = ProductosVencimiento.objects.filter(notificado=False)
-        serializer = self.get_serializer(productos, many=True)
-        return Response(serializer.data)
-    
-    @action(detail=False, methods=['get'])
-    def por_producto(self, request):
-        """Listar vencimientos por producto"""
-        producto_id = request.query_params.get('producto_id')
-        if producto_id:
-            vencimientos = ProductosVencimiento.objects.filter(producto_id=producto_id)
-            serializer = self.get_serializer(vencimientos, many=True)
-            return Response(serializer.data)
-        return Response({'error': 'ID de producto requerido'}, status=status.HTTP_400_BAD_REQUEST)
-
-# Vistas para reportes y estadísticas
-from rest_framework.views import APIView
-
-class ReportesView(APIView):
-    
-    def get(self, request, tipo_reporte):
-        """Generar diferentes tipos de reportes"""
-        
-        if tipo_reporte == 'stock-actual':
-            inventarios = Inventario.objects.select_related('producto').all()
-            data = []
-            for inv in inventarios:
-                data.append({
-                    'producto_id': inv.producto.idproducto,
-                    'producto_nombre': inv.producto.nombre,
-                    'stock_actual': inv.cantidad,
-                    'fecha_actualizacion': inv.fecha_actualizacion
-                })
-            return Response({'reporte': 'Stock Actual', 'data': data})
-        
-        elif tipo_reporte == 'movimientos-periodo':
-            fecha_inicio = request.query_params.get('fecha_inicio')
-            fecha_fin = request.query_params.get('fecha_fin')
-            
-            if not fecha_inicio or not fecha_fin:
-                return Response({'error': 'Fechas de inicio y fin requeridas'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            try:
-                fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
-                fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
-                
-                movimientos = MovimientoInventario.objects.filter(
-                    fecha__range=[fecha_inicio, fecha_fin]
-                ).select_related('idusuario', 'inventario_id__producto')
-                
-                data = []
-                for mov in movimientos:
-                    data.append({
-                        'fecha': mov.fecha,
-                        'tipo_movimiento': mov.tipo_movimiento,
-                        'producto': mov.inventario_id.producto.nombre,
-                        'usuario': mov.idusuario.nombre
-                    })
-                
-                return Response({
-                    'reporte': 'Movimientos por Período',
-                    'fecha_inicio': fecha_inicio,
-                    'fecha_fin': fecha_fin,
-                    'data': data
-                })
-            except ValueError:
-                return Response({'error': 'Formato de fecha inválido'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        elif tipo_reporte == 'productos-vencimiento':
-            productos = ProductosVencimiento.objects.select_related('producto_id').all()
-            data = []
-            for prod in productos:
-                data.append({
-                    'producto_nombre': prod.producto_id.nombre,
-                    'fecha_vencimiento': prod.fecha_vencimiento,
-                    'notificado': prod.notificado
-                })
-            return Response({'reporte': 'Productos Vencimiento', 'data': data})
-        
-        elif tipo_reporte == 'proveedores-activos':
-            from suppliers.models import Proveedor
-            proveedores = Proveedor.objects.filter(estado=True)
-            data = []
-            for prov in proveedores:
-                data.append({
-                    'id': prov.idproveedor,
-                    'nombre': prov.nombre,
-                    'tipo': prov.tipo,
-                    'correo': prov.correo,
-                    'telefono': prov.telefono
-                })
-            return Response({'reporte': 'Proveedores Activos', 'data': data})
-        
-        else:
-            return Response({'error': 'Tipo de reporte no válido'}, status=status.HTTP_400_BAD_REQUEST)
-
-class DashboardView(APIView):
-    
-    def get(self, request):
-        """Obtener estadísticas para dashboard"""
-        from productos.models import Producto
-        from suppliers.models import Proveedor
-        
-        # Total productos
-        total_productos = Producto.objects.count()
-        
-        # Valor total inventario (asumiendo precio unitario promedio)
-        inventarios = Inventario.objects.all()
-        valor_total = sum(inv.cantidad for inv in inventarios)  # Simplificado
-        
-        # Productos críticos (bajo stock)
-        productos_criticos = Inventario.objects.filter(cantidad__lte=10).count()
-        
-        # Movimientos recientes
-        movimientos_recientes = MovimientoInventario.objects.order_by('-fecha')[:10]
-        movimientos_data = []
-        for mov in movimientos_recientes:
-            movimientos_data.append({
-                'fecha': mov.fecha,
-                'tipo': mov.tipo_movimiento,
-                'producto': mov.inventario_id.producto.nombre,
-                'usuario': mov.idusuario.nombre
-            })
-        
-        # Productos por vencer
-        fecha_limite = timezone.now().date() + timedelta(days=30)
-        productos_por_vencer = ProductosVencimiento.objects.filter(
-            fecha_vencimiento__lte=fecha_limite,
-            fecha_vencimiento__gte=timezone.now().date()
-        ).count()
+        # Simular estadísticas
+        productos_disponibles = random.randint(int(total_productos * 0.6), total_productos)
+        productos_bajo_stock = random.randint(0, int(total_productos * 0.2))
+        productos_agotados = total_productos - productos_disponibles - productos_bajo_stock
         
         return Response({
             'total_productos': total_productos,
-            'valor_inventario_total': valor_total,
-            'productos_criticos': productos_criticos,
-            'productos_por_vencer': productos_por_vencer,
-            'movimientos_recientes': movimientos_data
+            'total_categorias': total_categorias,
+            'productos_disponibles': productos_disponibles,
+            'productos_bajo_stock': productos_bajo_stock,
+            'productos_agotados': productos_agotados,
+            'productos_proximos_vencer': random.randint(0, 10),
+            'productos_vencidos': random.randint(0, 5)
         })
+
+class ProductoProveedorViewSet(viewsets.ModelViewSet):
+    queryset = ProductoProveedor.objects.select_related('producto', 'proveedor').all()
+    serializer_class = ProductoProveedorSerializer
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        producto_id = self.request.query_params.get('producto_id', None)
+        proveedor_id = self.request.query_params.get('proveedor_id', None)
+        
+        if producto_id is not None:
+            queryset = queryset.filter(producto_id=producto_id)
+        if proveedor_id is not None:
+            queryset = queryset.filter(proveedor_id=proveedor_id)
+            
+        return queryset

@@ -1,22 +1,18 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import (
-    InventarioViewSet, 
-    MovimientoInventarioViewSet, 
-    DetalleEntradaSalidaViewSet,
-    ProductosVencimientoViewSet,
-    ReportesView,
-    DashboardView
-)
+from . import views
 
 router = DefaultRouter()
-router.register(r'inventario', InventarioViewSet)
-router.register(r'movimientos', MovimientoInventarioViewSet)
-router.register(r'detalles', DetalleEntradaSalidaViewSet)
-router.register(r'vencimientos', ProductosVencimientoViewSet)
+router.register(r'categorias', views.CategoriaViewSet)
+router.register(r'unidades-medida', views.UnidadesMedidaViewSet)
+router.register(r'productos', views.ProductoViewSet)
+router.register(r'producto-proveedor', views.ProductoProveedorViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('reportes/<str:tipo_reporte>/', ReportesView.as_view(), name='reportes'),
-    path('dashboard/', DashboardView.as_view(), name='dashboard'),
+    path('api/', include(router.urls)),
+    
+    # Endpoints específicos para el dashboard
+    path('api/productos/dashboard/', views.ProductoViewSet.as_view({'get': 'dashboard'}), name='productos-dashboard'),
+    path('api/productos/proximos-vencer/', views.ProductoViewSet.as_view({'get': 'proximos_vencer'}), name='productos-proximos-vencer'),
+    path('api/productos/estadisticas/', views.ProductoViewSet.as_view({'get': 'estadisticas'}), name='productos-estadisticas'),
 ]
