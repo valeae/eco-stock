@@ -1,12 +1,24 @@
 import { PerfilData } from "@/types/perfil";
 
-export const PERFIL_EJEMPLO: PerfilData = {
-  nombre: "María González",
-  email: "maria.gonzalez@agrotech.com",
-  telefono: "+57 300 123 4567",
-  cargo: "Administrador de Inventario",
-  empresa: "AgroTech Solutions",
-  ubicacion: "Bogotá, Colombia",
-  fechaIngreso: "2023-01-15",
-  avatar: "/api/placeholder/120/120",
-};
+export const PERFIL_EJEMPLO: PerfilData[] = [
+  {
+    nombre: "Carlos Mendoza",
+    email: "carlos.mendoza@agroalmacen.com",
+    telefono: "3001234567",
+    cargo: "Coordinador de Inventarios",
+    empresa: "AgroAlmacén Central",
+    ubicacion: "Villavicencio, Meta",
+    fechaIngreso: "2022-03-15",
+    avatar: "https://via.placeholder.com/150"
+  },
+  {
+    nombre: "Ana García",
+    email: "ana.garcia@agroalmacen.com",
+    telefono: "3159876543",
+    cargo: "Auxiliar de Bodega",
+    empresa: "AgroAlmacén Central",
+    ubicacion: "Villavicencio, Meta",
+    fechaIngreso: "2023-01-20",
+    avatar: "https://via.placeholder.com/150"
+  }
+]

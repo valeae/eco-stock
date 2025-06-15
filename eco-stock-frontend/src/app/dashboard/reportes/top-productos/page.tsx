@@ -9,71 +9,8 @@ import {
 } from "lucide-react";
 import DropDownEvolution from "@/components/dashboard/DropDownEvolution";
 
-// data.ts
-export type Producto = {
-  id: number;
-  nombre: string;
-  categoria: string;
-  rotacion: number;
-  tendencia: "positiva" | "negativa";
-  cambio: number;
-  evolucion: { mes: string; rotacion: number }[];
-};
-
-export const PRODUCTOS_EJEMPLO: Producto[] = [
-  {
-    id: 1,
-    nombre: "Fertilizante NPK Premium",
-    categoria: "Fertilizantes",
-    rotacion: 95,
-    tendencia: "positiva",
-    cambio: 12.5,
-    evolucion: [
-      { mes: "Ene", rotacion: 78 },
-      { mes: "Feb", rotacion: 82 },
-    ],
-  },
-  {
-    id: 2,
-    nombre: "Semillas de Maíz Híbrido",
-    categoria: "Semillas",
-    rotacion: 88,
-    tendencia: "positiva",
-    cambio: 8.3,
-    evolucion: [
-      { mes: "Ene", rotacion: 75 },
-      { mes: "Feb", rotacion: 79 },
-      { mes: "Mar", rotacion: 82 },
-    ],
-  },
-  {
-    id: 3,
-    nombre: "Herbicida Selectivo Pro",
-    categoria: "Herbicidas",
-    rotacion: 82,
-    tendencia: "negativa",
-    cambio: -5.2,
-    evolucion: [
-      { mes: "Ene", rotacion: 90 },
-      { mes: "Feb", rotacion: 88 },
-
-    ],
-  },
-  {
-    id: 4,
-    nombre: "Fungicida Sistémico",
-    categoria: "Fungicidas",
-    rotacion: 75,
-    tendencia: "positiva",
-    cambio: 15.4,
-    evolucion: [
-      { mes: "Ene", rotacion: 60 },
-      { mes: "Feb", rotacion: 65 },
-      { mes: "Mar", rotacion: 68 },
-      { mes: "Abr", rotacion: 71 },
-    ],
-  },
-];
+// Types and mocks
+import { PRODUCTOS_EJEMPLO } from "@/mocks/top-productos";
 
 const CATEGORIAS = [
   "Todas",
@@ -83,27 +20,20 @@ const CATEGORIAS = [
   "Fungicidas",
   "Insecticidas",
 ];
-const PERIODOS = [
-  "Último mes",
-  "Últimos 3 meses",
-  "Últimos 6 meses",
-  "Este año",
-];
 
 export default function TopProducts() {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todas");
-  const [periodoSeleccionado, setPeriodoSeleccionado] =
-    useState("Últimos 6 meses");
   const [desplegableAbierto, setDesplegableAbierto] = useState<number | null>(
     null
   );
 
-  const productosFiltrados = PRODUCTOS_EJEMPLO.filter(
-    (producto) =>
-      categoriaSeleccionada === "Todas" ||
-      producto.categoria === categoriaSeleccionada
-  );
+  // Filtrar productos por categoría únicamente
+  const productosFiltrados = PRODUCTOS_EJEMPLO.filter((producto) => {
+    return categoriaSeleccionada === "Todas" || 
+           producto.categoria === categoriaSeleccionada;
+  });
 
+  // Ordenar productos por rotación (mayor a menor)
   const productosOrdenados = [...productosFiltrados].sort(
     (a, b) => b.rotacion - a.rotacion
   );
@@ -114,6 +44,18 @@ export default function TopProducts() {
     );
   };
 
+  // Handler para cambio de categoría
+  const handleCategoriaChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    console.log('Categoria cambiada a:', event.target.value); // Debug
+    setCategoriaSeleccionada(event.target.value);
+    setDesplegableAbierto(null); // Cerrar desplegables al cambiar filtro
+  };
+
+  // Debug info
+  console.log('Productos totales:', PRODUCTOS_EJEMPLO.length);
+  console.log('Productos filtrados:', productosFiltrados.length);
+  console.log('Categoria seleccionada:', categoriaSeleccionada);
+
   return (
     <div className="min-h-screen bg-primary-ecoLight">
       <div className="max-w-6xl mx-auto px-4 py-6">
@@ -122,6 +64,11 @@ export default function TopProducts() {
           <h1 className="text-3xl font-bold text-heading-dark mb-3">
             Top de productos con mayor rotación
           </h1>
+          {/* Debug info visible */}
+          <p className="text-sm text-gray-600">
+            Mostrando {productosOrdenados.length} productos 
+            {categoriaSeleccionada !== "Todas" && ` de la categoría "${categoriaSeleccionada}"`}
+          </p>
         </div>
 
         {/* Filtros */}
@@ -140,32 +87,16 @@ export default function TopProducts() {
                 <select
                   aria-label="Categoría"
                   value={categoriaSeleccionada}
-                  onChange={(e) => setCategoriaSeleccionada(e.target.value)}
-                  className="px-4 py-3 bg-white bg-opacity-20 border border-white border-opacity-30 rounded-lg text-white text-sm w-40 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 appearance-none placeholder-white placeholder-opacity-70"
+                  onChange={handleCategoriaChange}
+                  className="px-4 py-3 bg-white bg-opacity-20 border border-white border-opacity-30 rounded-lg text-white text-sm w-48 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 appearance-none cursor-pointer"
                 >
                   {CATEGORIAS.map((categoria) => (
-                    <option key={categoria} value={categoria} className="text-gray-800">
+                    <option 
+                      key={categoria} 
+                      value={categoria} 
+                      className="text-gray-800 bg-white"
+                    >
                       {categoria}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white text-opacity-80"
-                  size={16}
-                />
-              </div>
-
-              {/* Periodo */}
-              <div className="relative">
-                <select
-                  aria-label="Periodo"
-                  value={periodoSeleccionado}
-                  onChange={(e) => setPeriodoSeleccionado(e.target.value)}
-                  className="appearance-none bg-white bg-opacity-20 border border-white border-opacity-30 rounded-lg px-4 py-3 pr-10 min-w-44 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
-                >
-                  {PERIODOS.map((p) => (
-                    <option key={p} value={p} className="text-gray-800">
-                      {p}
                     </option>
                   ))}
                 </select>

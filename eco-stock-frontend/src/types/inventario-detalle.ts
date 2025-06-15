@@ -1,13 +1,10 @@
-import { type Categoria } from "./categoria";
-import { type ProductoDetalle } from "./producto";
-
 export interface InventarioDetalle {
-    id: number;
-    nombre: ProductoDetalle;
-    descripcion: Categoria;
-    cantidadDisponible: ProductoDetalle;
-    fechaActualizacion: string;
-    unidadMedida: string;
-    categoria: string;
-    proveedores: string[];
-  };
+  id: number;
+  nombre: string;
+  descripcion: string;
+  cantidadDisponible: number;
+  fechaActualizacion: string;
+  unidadMedida: string;
+  categoria: string;
+  proveedores: string[];
+};

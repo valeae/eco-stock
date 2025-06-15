@@ -1,12 +1,3 @@
-// Mostrar cuántas entradas y salidas se han hecho en un periodo (mensual, semanal o por fecha), para analizar actividad.
-// Filtros: Fecha de inicio / Fecha de fin
-// Datos a mostrar:
-// Fecha
-// Entradas realizadas
-// Salidas realizadas
-// Diferencia (inventario neto)
-// Usuario que más movimientos hizo (opcional)
-
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
@@ -27,118 +18,9 @@ import PageLayout from "@/components/shared/PageLayout";
 import SearchAndActions from "@/components/shared/SearchAndActions";
 import { exportToCSV } from "@/components/shared/ExportUtils";
 
-// Interfaces
-interface MovimientoPeriodo extends Record<string, unknown> {
-  id: number;
-  fecha: string;
-  entradas: number;
-  salidas: number;
-  diferencia: number;
-  usuarioMasActivo: string;
-  totalMovimientos: number;
-  productos: {
-    entrada: string[];
-    salida: string[];
-  };
-}
-
-// Datos de ejemplo simulando movimientos de inventario agrícola
-const MOVIMIENTOS_EJEMPLO: MovimientoPeriodo[] = [
-  {
-    id: 1,
-    fecha: "2024-12-01",
-    entradas: 15,
-    salidas: 8,
-    diferencia: 7,
-    usuarioMasActivo: "María González",
-    totalMovimientos: 23,
-    productos: {
-      entrada: ["Semillas de Maíz", "Fertilizante NPK", "Herramientas"],
-      salida: ["Insecticida", "Semillas de Frijol"]
-    }
-  },
-  {
-    id: 2,
-    fecha: "2024-12-02",
-    entradas: 12,
-    salidas: 18,
-    diferencia: -6,
-    usuarioMasActivo: "Carlos Ruiz",
-    totalMovimientos: 30,
-    productos: {
-      entrada: ["Urea Granulada", "Azadón"],
-      salida: ["Fertilizante Orgánico", "Semillas de Arroz", "Pala"]
-    }
-  },
-  {
-    id: 3,
-    fecha: "2024-12-03",
-    entradas: 20,
-    salidas: 5,
-    diferencia: 15,
-    usuarioMasActivo: "Ana López",
-    totalMovimientos: 25,
-    productos: {
-      entrada: ["Semillas Híbridas", "Fungicida", "Fertilizante NPK"],
-      salida: ["Herbicida"]
-    }
-  },
-  {
-    id: 4,
-    fecha: "2024-12-04",
-    entradas: 8,
-    salidas: 14,
-    diferencia: -6,
-    usuarioMasActivo: "Pedro Martín",
-    totalMovimientos: 22,
-    productos: {
-      entrada: ["Insecticida Orgánico"],
-      salida: ["Semillas de Maíz", "Fertilizante", "Herramientas"]
-    }
-  },
-  {
-    id: 5,
-    fecha: "2024-12-05",
-    entradas: 25,
-    salidas: 12,
-    diferencia: 13,
-    usuarioMasActivo: "Laura Vega",
-    totalMovimientos: 37,
-    productos: {
-      entrada: ["Semillas Certificadas", "Fertilizantes", "Agroquímicos"],
-      salida: ["Herramientas", "Semillas de Frijol"]
-    }
-  },
-  {
-    id: 6,
-    fecha: "2024-12-06",
-    entradas: 18,
-    salidas: 22,
-    diferencia: -4,
-    usuarioMasActivo: "Miguel Torres",
-    totalMovimientos: 40,
-    productos: {
-      entrada: ["Fertilizante Orgánico", "Semillas"],
-      salida: ["Insecticida", "Fungicida", "Herramientas", "Fertilizante NPK"]
-    }
-  },
-  {
-    id: 7,
-    fecha: "2024-12-07",
-    entradas: 30,
-    salidas: 15,
-    diferencia: 15,
-    usuarioMasActivo: "Sandra Díaz",
-    totalMovimientos: 45,
-    productos: {
-      entrada: ["Semillas Premium", "Fertilizantes Especiales", "Agroquímicos"],
-      salida: ["Herramientas Básicas", "Semillas Comunes"]
-    }
-  }
-];
-
-type PeriodoFiltro = "semanal" | "mensual" | "personalizado";
-type VistaReporte = "timeline" | "comparativo" | "usuario";
+// Types and mocks
+import { MOVIMIENTOS_EJEMPLO } from "@/mocks/movimientos-periodos";
+import { type PeriodoFiltro, type VistaReporte } from "@/types/movimiento-periodo";
 
 export default function MovimientosPeriodo() {
   const [busqueda, setBusqueda] = useState("");
@@ -178,7 +60,15 @@ export default function MovimientosPeriodo() {
       const fileName = `movimientos_periodo_${periodoFiltro}_${new Date().toISOString().split('T')[0]}.csv`;
       
       const success = exportToCSV(
-        datosFiltrados as Record<string, unknown>[],
+        datosFiltrados.map((p) => ({
+          ...p,
+          usuarioMasActivo: p.usuarioMasActivo,
+          totalMovimientos: p.totalMovimientos,
+          productos: {
+            entrada: p.productos.entrada,
+            salida: p.productos.salida,
+          },
+        })),
         headers,
         fileName
       );

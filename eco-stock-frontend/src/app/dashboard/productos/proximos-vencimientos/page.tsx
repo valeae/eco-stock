@@ -17,55 +17,19 @@ import { exportToCSV } from "@/components/shared/ExportUtils";
 //Hooks
 import { useFormValidation } from "@/hooks/useFormValidation";
 
-type Producto = {
-  id: number;
-  lote: string;
-  nombre: string;
-  cantidad: string;
-  proveedor: string;
-  fechaVencimiento: string;
-  notificado: boolean;
-};
-
-const PRODUCTOS_EJEMPLO: Producto[] = [
-  {
-    id: 1,
-    lote: "AB1",
-    nombre: "Abono orgánico compostado",
-    cantidad: "5",
-    proveedor: "AgroNatur",
-    fechaVencimiento: "2024-09-15",
-    notificado: false,
-  },
-  {
-    id: 2,
-    lote: "FN2",
-    nombre: "Fertilizante nitrogenado",
-    cantidad: "3",
-    proveedor: "FertiPlus",
-    fechaVencimiento: "2024-10-01",
-    notificado: false,
-  },
-  {
-    id: 3,
-    lote: "IN3",
-    nombre: "Insecticida natural",
-    cantidad: "2",
-    proveedor: "BioAgro",
-    fechaVencimiento: "2024-08-22",
-    notificado: false,
-  },
-];
+// Types and mocks
+import { VENCIMIENTOS_EJEMPLO } from "@/mocks/productos-vencimiento";
+import { type ProximoVencimiento } from "@/types/proximo-vencimiento";
 
 export default function CommingExpiration() {
-  const [productos, setProductos] = useState<Producto[]>(PRODUCTOS_EJEMPLO);
+  const [productos, setProductos] = useState<ProximoVencimiento[]>(VENCIMIENTOS_EJEMPLO);
   const [busqueda, setBusqueda] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("todos");
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [formVisible, setFormVisible] = useState(false);
   const [exportandoCSV, setExportandoCSV] = useState(false);
 
-  const [formData, setFormData] = useState<Omit<Producto, "id" | "notificado">>(
+  const [formData, setFormData] = useState<Omit<ProximoVencimiento, "id" | "notificado">>(
     {
       lote: "",
       nombre: "",
@@ -123,7 +87,7 @@ export default function CommingExpiration() {
   }, [productos]);
 
   // Configuración de filtros para el componente FilterButtons
-  const getFilterOptions = (data: Producto[]) => [
+  const getFilterOptions = (data: ProximoVencimiento[]) => [
     {
       key: "todos",
       label: "Todos",
@@ -184,7 +148,7 @@ export default function CommingExpiration() {
       toast.success("Producto actualizado");
       setEditandoId(null);
     } else {
-      const nuevoProducto: Producto = {
+      const nuevoProducto: ProximoVencimiento = {
         id: Date.now(),
         ...formData,
         notificado: false,
@@ -208,7 +172,7 @@ export default function CommingExpiration() {
     setFormVisible(false);
   };
 
-  const handleEditar = (producto: Producto) => {
+  const handleEditar = (producto: ProximoVencimiento) => {
     setEditandoId(producto.id);
     setFormData({
       lote: producto.lote,
@@ -220,7 +184,7 @@ export default function CommingExpiration() {
     setFormVisible(true);
   };
 
-  const handleEliminar = (producto: Producto) => {
+  const handleEliminar = (producto: ProximoVencimiento) => {
     setProductos((prev) => prev.filter((p) => p.id !== producto.id));
     toast.info(`Producto eliminado: ${producto.nombre}`);
   };
@@ -238,7 +202,13 @@ export default function CommingExpiration() {
         "Estado",
       ];
       const success = exportToCSV(
-        productosFiltrados,
+        productosFiltrados.map((p) => ({
+          ...p,
+          nombre: p.nombre,
+          cantidad: p.cantidad,
+          proveedor: p.proveedor,
+          fechaVencimiento: p.fechaVencimiento,
+        })),
         headers,
         "productos-vencimiento.csv"
       );
@@ -293,7 +263,7 @@ export default function CommingExpiration() {
     },
   ];
 
-  const columns: TableColumn<Producto>[] = [
+  const columns: TableColumn<ProximoVencimiento>[] = [
     { key: "lote", title: "Lote" },
     { key: "nombre", title: "Nombre" },
     { key: "cantidad", title: "Cantidad" },

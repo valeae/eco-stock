@@ -17,21 +17,12 @@ import { exportToCSV } from "@/components/shared/ExportUtils";
 // Hooks
 import { useFormValidation } from "@/hooks/useFormValidation";
 
-//Types and mocks
+// Types and mocks
 import { PRODUCTOS_EJEMPLO } from "@/mocks/productos";
-import { type Producto } from "@/types/producto";
-import { calcularStockDesdeMovimientos } from "@/utils/calcular-stock";
+import { type ProductoDetalle } from "@/types/producto";
 
 export default function DetallesProductosPage() {
-  const [productos, setProductos] = useState<Producto[]>(() => {
-    const stockPorProducto = calcularStockDesdeMovimientos(PRODUCTOS_EJEMPLO);
-
-    return PRODUCTOS_EJEMPLO.map((p) => ({
-      ...p,
-      stock: stockPorProducto[p.nombre] ?? 0,
-    }));
-  });
-
+  const [productos, setProductos] = useState<ProductoDetalle[]>(PRODUCTOS_EJEMPLO);
   const [busqueda, setBusqueda] = useState("");
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [formVisible, setFormVisible] = useState(false);
@@ -42,8 +33,6 @@ export default function DetallesProductosPage() {
     descripcion: "",
     stock: 0,
     estado: "",
-    categoria: "",
-    proveedor: "",
   });
 
   const inputNombreRef = useRef<HTMLInputElement>(null);
@@ -89,7 +78,7 @@ export default function DetallesProductosPage() {
       toast.success("Producto actualizado");
       setEditandoId(null);
     } else {
-      const nuevoProducto: Producto = {
+      const nuevoProducto: ProductoDetalle = {
         id: Date.now(),
         ...formData,
       };
@@ -197,7 +186,7 @@ export default function DetallesProductosPage() {
     },
   ];
 
-  const columns: TableColumn<Producto>[] = [
+  const columns: TableColumn<ProductoDetalle>[] = [
     { key: "nombre", title: "Nombre" },
     { key: "descripcion", title: "Descripción" },
     {

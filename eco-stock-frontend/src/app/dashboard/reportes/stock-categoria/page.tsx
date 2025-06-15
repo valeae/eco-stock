@@ -1,10 +1,3 @@
-// Ver el total de productos y cantidades agrupados por categoría para identificar qué tipo de insumos se tiene más o menos.
-// Datos a mostrar:
-// Categoría
-// Total de productos registrados
-// Suma total de stock (todas las cantidades de esa categoría)
-// Porcentaje sobre el total del inventario
-
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
@@ -16,120 +9,10 @@ import PageLayout from "@/components/shared/PageLayout";
 import SearchAndActions from "@/components/shared/SearchAndActions";
 import { exportToCSV } from "@/components/shared/ExportUtils";
 
-// Simulamos datos de productos agrícolas para generar el reporte
-interface ProductoInventario {
-  id: number;
-  codigo: string;
-  nombre: string;
-  categoria: string;
-  stockDisponible: number;
-  estadoInventario: "activo" | "inactivo" | "suspendido";
-}
-
-interface StockCategoria extends Record<string, unknown> {
-  id: number;
-  categoria: string;
-  totalProductos: number;
-  stockTotal: number;
-  porcentajeTotal: number;
-  promedioPorProducto: number;
-}
-
-// Datos de ejemplo de productos agrícolas
-const PRODUCTOS_EJEMPLO: ProductoInventario[] = [
-  // Semillas
-  {
-    id: 1,
-    codigo: "SEM001",
-    nombre: "Semillas de Maíz Híbrido",
-    categoria: "Semillas",
-    stockDisponible: 450,
-    estadoInventario: "activo",
-  },
-  {
-    id: 2,
-    codigo: "SEM002",
-    nombre: "Semillas de Frijol",
-    categoria: "Semillas",
-    stockDisponible: 320,
-    estadoInventario: "activo",
-  },
-  {
-    id: 3,
-    codigo: "SEM003",
-    nombre: "Semillas de Arroz",
-    categoria: "Semillas",
-    stockDisponible: 280,
-    estadoInventario: "activo",
-  },
-  // Fertilizantes
-  {
-    id: 4,
-    codigo: "FERT001",
-    nombre: "Fertilizante NPK 15-15-15",
-    categoria: "Fertilizantes",
-    stockDisponible: 150,
-    estadoInventario: "activo",
-  },
-  {
-    id: 5,
-    codigo: "FERT002",
-    nombre: "Urea Granulada",
-    categoria: "Fertilizantes",
-    stockDisponible: 200,
-    estadoInventario: "activo",
-  },
-  {
-    id: 6,
-    codigo: "FERT003",
-    nombre: "Fertilizante Orgánico",
-    categoria: "Fertilizantes",
-    stockDisponible: 120,
-    estadoInventario: "activo",
-  },
-  // Herramientas
-  {
-    id: 7,
-    codigo: "HERR001",
-    nombre: "Azadón de Acero",
-    categoria: "Herramientas",
-    stockDisponible: 85,
-    estadoInventario: "activo",
-  },
-  {
-    id: 8,
-    codigo: "HERR002",
-    nombre: "Pala Jardinera",
-    categoria: "Herramientas",
-    stockDisponible: 65,
-    estadoInventario: "activo",
-  },
-  // Agroquímicos
-  {
-    id: 9,
-    codigo: "AGRO001",
-    nombre: "Insecticida Orgánico",
-    categoria: "Agroquímicos",
-    stockDisponible: 95,
-    estadoInventario: "activo",
-  },
-  {
-    id: 10,
-    codigo: "AGRO002",
-    nombre: "Fungicida Preventivo",
-    categoria: "Agroquímicos",
-    stockDisponible: 75,
-    estadoInventario: "activo",
-  },
-  {
-    id: 11,
-    codigo: "AGRO003",
-    nombre: "Herbicida Selectivo",
-    categoria: "Agroquímicos",
-    stockDisponible: 45,
-    estadoInventario: "inactivo",
-  },
-];
+// Types and mocks
+import { PRODUCTOS_EJEMPLO } from "@/mocks/productos-inventario";
+import { type ProductoInventario } from "@/types/producto-inventario";
+import { type StockCategoria } from "@/types/stock-categoria";
 
 // Iconos y colores por categoría usando la paleta personalizada
 const CATEGORIA_CONFIG = {

@@ -1,4 +1,4 @@
-export interface MovimientoHistorial extends Record<string, unknown> {
+export interface MovimientoHistorial {
   id: number;
   fecha: string;
   tipoMovimiento: "entrada" | "salida";
@@ -7,3 +7,5 @@ export interface MovimientoHistorial extends Record<string, unknown> {
   usuarioRegistro: string;
   detalle: string;
 }
+
+export type FiltroCompleto = 'todos' | 'entrada' | 'salida';
