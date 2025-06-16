@@ -13,33 +13,10 @@ import { exportToCSV } from "@/components/shared/ExportUtils";
 //Hooks
 import { useFormValidation } from "@/hooks/useFormValidation";
 
-type Categoria = {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  tipo: string;
-  vidaUtil: string;
-  presentación: string;
-};
+// Types and mocks
+import { type Categoria } from "@/types/categoria";
+import { CATEGORIAS_EJEMPLO } from "@/mocks/categorias";
 
-const CATEGORIAS_EJEMPLO: Categoria[] = [
-  {
-    id: 1,
-    nombre: "Fertilizantes",
-    descripcion: "Productos para el crecimiento de plantas",
-    tipo: "Insumo",
-    vidaUtil: "2 años",
-    presentación: "Manual",
-  },
-  {
-    id: 2,
-    nombre: "Herramientas",
-    descripcion: "Herramientas agrícolas",
-    tipo: "Equipo",
-    vidaUtil: "5 años",
-    presentación: "Manual",
-  },
-];
 
 export default function CategoriasPage() {
   const [categorias, setCategorias] = useState<Categoria[]>(CATEGORIAS_EJEMPLO);
@@ -142,7 +119,12 @@ export default function CategoriasPage() {
     setTimeout(() => {
       const headers = ["Nombre", "Descripción", "Tipo", "Vida útil", "Modo"];
       const success = exportToCSV(
-        categoriasFiltradas,
+        categoriasFiltradas.map((c) => ({
+          ...c,
+          tipo: c.tipo,
+          vidaUtil: c.vidaUtil,
+          presentación: c.presentación,
+        })),
         headers,
         "categorias-inventario.csv"
       );

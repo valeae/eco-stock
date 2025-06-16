@@ -17,51 +17,9 @@ import FilterButtons from "@/components/shared/FilterButtons";
 //Hooks
 import { useFormValidation } from "@/hooks/useFormValidation";
 
-interface ProductoInventario extends Record<string, unknown> {
-  id: number;
-  codigo: string;
-  nombre: string;
-  categoria: string;
-  stockDisponible: number;
-  estadoInventario: "activo" | "inactivo" | "suspendido";
-}
-
-type FiltroCompleto = "todos" | "activo" | "inactivo" | "suspendido";
-
-const PRODUCTOS_EJEMPLO: ProductoInventario[] = [
-  {
-    id: 1,
-    codigo: "PROD001",
-    nombre: "Producto Alpha",
-    categoria: "Electrónicos",
-    stockDisponible: 150,
-    estadoInventario: "activo",
-  },
-  {
-    id: 2,
-    codigo: "PROD002",
-    nombre: "Producto Beta",
-    categoria: "Hogar",
-    stockDisponible: 75,
-    estadoInventario: "activo",
-  },
-  {
-    id: 3,
-    codigo: "PROD003",
-    nombre: "Producto Gamma",
-    categoria: "Deportes",
-    stockDisponible: 0,
-    estadoInventario: "inactivo",
-  },
-  {
-    id: 4,
-    codigo: "PROD004",
-    nombre: "Producto Delta",
-    categoria: "Ropa",
-    stockDisponible: 25,
-    estadoInventario: "suspendido",
-  },
-];
+// Types and mocks
+import { PRODUCTOS_EJEMPLO } from "@/mocks/productos-inventario";
+import { type ProductoInventario, type FiltroCompleto } from "@/types/producto-inventario";
 
 export default function ListadoInventario() {
   const [productos, setProductos] =
@@ -433,7 +391,7 @@ export default function ListadoInventario() {
               ? "Desactivar"
               : producto.estadoInventario === "inactivo"
               ? "Suspender"
-              : "Activar"}
+              : "Reactivar"}
           </button>
         )}
       />

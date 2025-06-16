@@ -12,39 +12,9 @@ import DataTable, { type TableColumn } from "@/components/shared/DataTable";
 //Hooks
 import { useFormValidation } from "@/hooks/useFormValidation";
 
-interface UnidadMedida {
-  id: number;
-  nombre: string;
-  abreviatura: string;
-  descripcion: string;
-}
-
-const UNIDADES_EJEMPLO: UnidadMedida[] = [
-  {
-    id: 1,
-    nombre: "Kilogramo",
-    abreviatura: "kg",
-    descripcion: "Usado para productos sólidos como fertilizantes.",
-  },
-  {
-    id: 2,
-    nombre: "Litro",
-    abreviatura: "L",
-    descripcion: "Usado para líquidos como herbicidas.",
-  },
-  {
-    id: 3,
-    nombre: "Metro",
-    abreviatura: "m",
-    descripcion: "Usado para medir longitudes de materiales.",
-  },
-  {
-    id: 4,
-    nombre: "Unidad",
-    abreviatura: "ud",
-    descripcion: "Usado para productos individuales como herramientas.",
-  },
-];
+// Types and mocks
+import { type UnidadMedida } from "@/types/unidad-medida";
+import { UNIDADES_EJEMPLO } from "@/mocks/unidades-medida";
 
 export default function UnidadesDeMedidaPage() {
   const [unidades, setUnidades] = useState<UnidadMedida[]>(UNIDADES_EJEMPLO);

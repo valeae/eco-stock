@@ -25,30 +25,14 @@ import {
 // Components
 import PageLayout from "@/components/shared/PageLayout";
 
-interface PerfilData {
-  nombre: string;
-  email: string;
-  telefono: string;
-  cargo: string;
-  empresa: string;
-  ubicacion: string;
-  fechaIngreso: string;
-  avatar: string;
-}
+// Types and mocks
+import { type PerfilData } from "@/types/perfil";
+import { PERFIL_EJEMPLO } from "@/mocks/perfil";
 
 export default function PerfilUsuario() {
   const [editando, setEditando] = useState(false);
   const [guardando, setGuardando] = useState(false);
-  const [perfilData, setPerfilData] = useState<PerfilData>({
-    nombre: "María González",
-    email: "maria.gonzalez@agrotech.com",
-    telefono: "+57 300 123 4567",
-    cargo: "Administrador de Inventario",
-    empresa: "AgroTech Solutions",
-    ubicacion: "Bogotá, Colombia",
-    fechaIngreso: "2023-01-15",
-    avatar: "/api/placeholder/120/120"
-  });
+  const [perfilData, setPerfilData] = useState<PerfilData>(PERFIL_EJEMPLO);
 
   const handleInputChange = (field: keyof PerfilData, value: string) => {
     setPerfilData(prev => ({
@@ -139,14 +123,24 @@ export default function PerfilUsuario() {
                     <User className="h-16 w-16 text-primary" />
                   </div>
                   {editando && (
-                    <button className="absolute bottom-4 right-0 h-8 w-8 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors">
+                    <button 
+                      title="Cambiar Foto"
+                      type="button"
+                      className="absolute bottom-4 right-0 h-8 w-8 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors"
+                    >
                       <Camera className="h-4 w-4" />
                     </button>
                   )}
                 </div>
-                <h3 className="text-lg font-semibold text-heading">{perfilData.nombre}</h3>
-                <p className="text-sm text-muted-dark">{perfilData.cargo}</p>
-                <p className="text-xs text-muted-dark mt-1">{perfilData.empresa}</p>
+                <h3 className="text-lg font-semibold text-heading mb-1">
+                  {perfilData.nombre}
+                </h3>
+                <p className="text-sm text-muted-dark mb-2">
+                  {perfilData.cargo}
+                </p>
+                <p className="text-xs text-muted-dark">
+                  {perfilData.empresa}
+                </p>
               </div>
 
               <div className="mt-6 space-y-3">

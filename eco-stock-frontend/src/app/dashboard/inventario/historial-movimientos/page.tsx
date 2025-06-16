@@ -1,14 +1,3 @@
-// Mostrar el flujo de inventario con fechas y usuarios responsables.
-// Datos a mostrar:
-// 📅 Fecha
-// ↔️ Tipo de movimiento (Entrada / Salida)
-// 📦 Producto
-// 🔢 Cantidad
-// 💰 Precio unitario
-// 👤 Usuario que lo registró
-// 🗒️ Detalle (tooltip con info adicional, como el motivo)
-// Te ayuda a auditar y entender cómo se está moviendo el inventario a lo largo del tiempo.
-
 "use client";
 
 import { useRef, useState, useCallback, useMemo } from "react";
@@ -28,56 +17,9 @@ import FilterButtons from "@/components/shared/FilterButtons";
 //Hooks
 import { useFormValidation } from "@/hooks/useFormValidation";
 
-interface MovimientoHistorial extends Record<string, unknown> {
-  id: number;
-  fecha: string;
-  tipoMovimiento: "entrada" | "salida";
-  producto: string;
-  cantidad: number;
-  usuarioRegistro: string;
-  detalle: string;
-}
-
-type FiltroCompleto = 'todos' | 'entrada' | 'salida';
-
-const MOVIMIENTOS_EJEMPLO: MovimientoHistorial[] = [
-  {
-    id: 1,
-    fecha: "2024-12-01",
-    tipoMovimiento: "entrada",
-    producto: "Producto Alpha",
-    cantidad: 100,
-    usuarioRegistro: "Juan Pérez",
-    detalle: "Compra inicial de inventario - Proveedor ABC",
-  },
-  {
-    id: 2,
-    fecha: "2024-12-02",
-    tipoMovimiento: "salida",
-    producto: "Producto Beta",
-    cantidad: 15,
-    usuarioRegistro: "María García",
-    detalle: "Venta a cliente - Pedido #12345",
-  },
-  {
-    id: 3,
-    fecha: "2024-12-03",
-    tipoMovimiento: "entrada",
-    producto: "Producto Gamma",
-    cantidad: 50,
-    usuarioRegistro: "Carlos López",
-    detalle: "Reposición de stock - Proveedor XYZ",
-  },
-  {
-    id: 4,
-    fecha: "2024-12-04",
-    tipoMovimiento: "salida",
-    producto: "Producto Alpha",
-    cantidad: 25,
-    usuarioRegistro: "Ana Rodríguez",
-    detalle: "Transferencia a sucursal norte - Requisición #789",
-  },
-];
+// Types and mocks 
+import { MOVIMIENTOS_EJEMPLO } from "@/mocks/movimiento-historial";
+import { type MovimientoHistorial, type FiltroCompleto } from "@/types/movimiento-historial";
 
 export default function MovimientosHistorial() {
     const [movimientos, setMovimientos] = useState<MovimientoHistorial[]>(MOVIMIENTOS_EJEMPLO);
