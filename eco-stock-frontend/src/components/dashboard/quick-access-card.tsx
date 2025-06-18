@@ -1,3 +1,5 @@
+import React from "react";
+
 interface Props {
   title: string;
   icon: string;
@@ -15,7 +17,7 @@ export default function QuickAccessCard({
 }: Props) {
   const iconClass = `h-6 w-6 ${disabled ? "opacity-50" : ""}`;
 
-  const iconMap: Record<string, JSX.Element> = {
+  const iconMap: Record<string, React.JSX.Element> = {
     package: (
       <svg
         className={iconClass}
