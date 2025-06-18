@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { useState, useEffect } from "react";
 import HeaderSection from "@/components/dashboard/header-section";
 import QuickAccessCard from "@/components/dashboard/quick-access-card";
@@ -71,7 +72,7 @@ const ExpiringProduct: React.FC<ExpiringProductProps> = ({
   );
 };
 
-export default function Dashboard(): JSX.Element {
+export default function Dashboard(): React.JSX.Element {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -91,7 +92,7 @@ export default function Dashboard(): JSX.Element {
 
   // Datos del inventario de insumos agrícolas
   const inventoryMetrics = [
-    { title: "Total Productos", value: "327", unit: "items", trend: "up" },
+    { title: "Total Productos", value: "270", unit: "items", trend: "up" },
     { title: "Total Categorías", value: "4", unit: "categorías", trend: "up" },
     { title: "Productos a Vencer", value: "8", unit: "items", trend: "down" },
     { title: "Rotación Promedio", value: "22", unit: "días", trend: "stable" },

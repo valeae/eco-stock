@@ -263,7 +263,7 @@ export default function ListadoInventario() {
 
   const formFields: FormField[] = [
     {
-      key: "codigo",
+      key: "Lote",
       type: "text",
       placeholder: "Código del producto",
       value: formData.codigo,
@@ -314,7 +314,7 @@ export default function ListadoInventario() {
   ];
 
   const columns: TableColumn<ProductoInventario>[] = [
-    { key: "codigo", title: "Código" },
+    { key: "codigo", title: "Lote" },
     { key: "nombre", title: "Nombre" },
     { key: "categoria", title: "Categoría" },
     { key: "stockDisponible", title: "Stock" },
@@ -332,7 +332,7 @@ export default function ListadoInventario() {
       <SearchAndActions
         searchValue={busqueda}
         onSearchChange={setBusqueda}
-        searchPlaceholder="Buscar por código, nombre o categoría..."
+        searchPlaceholder="Buscar por lote, nombre o categoría..."
         formVisible={formVisible}
         onToggleForm={() => setFormVisible(true)}
         onSave={handleAgregarOEditar}

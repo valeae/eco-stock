@@ -7,7 +7,7 @@ export const VENCIMIENTOS_EJEMPLO: ProximoVencimiento[] = [
     nombre: "Glifosato 48%",
     cantidad: "25 litros",
     proveedor: "Agroquímicos del Oriente",
-    fechaVencimiento: "2024-08-15",
+    fechaVencimiento: "2025-07-15",
     notificado: true
   },
   {
@@ -16,7 +16,7 @@ export const VENCIMIENTOS_EJEMPLO: ProximoVencimiento[] = [
     nombre: "Semilla Maíz Híbrido ICA V-305",
     cantidad: "15 bolsas",
     proveedor: "Semillas Premium Ltda",
-    fechaVencimiento: "2024-07-30",
+    fechaVencimiento: "2025-04-30",
     notificado: false
   },
   {
@@ -25,7 +25,7 @@ export const VENCIMIENTOS_EJEMPLO: ProximoVencimiento[] = [
     nombre: "Insecticida Cipermetrina 25%",
     cantidad: "40 litros",
     proveedor: "Agroquímicos del Oriente",
-    fechaVencimiento: "2024-09-20",
+    fechaVencimiento: "2025-09-20",
     notificado: false
   }
 ];

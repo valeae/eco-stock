@@ -32,7 +32,7 @@ import { PERFIL_EJEMPLO } from "@/mocks/perfil";
 export default function PerfilUsuario() {
   const [editando, setEditando] = useState(false);
   const [guardando, setGuardando] = useState(false);
-  const [perfilData, setPerfilData] = useState<PerfilData>(PERFIL_EJEMPLO);
+  const [perfilData, setPerfilData] = useState<PerfilData>(PERFIL_EJEMPLO[0]);
 
   const handleInputChange = (field: keyof PerfilData, value: string) => {
     setPerfilData(prev => ({

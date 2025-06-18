@@ -5,6 +5,7 @@ export interface ProductoInventario {
     categoria: string;
     stockDisponible: number;
     estadoInventario: "activo" | "inactivo" | "suspendido";
+    [key: string]: unknown;
   }
   
  export type FiltroCompleto = "todos" | "activo" | "inactivo" | "suspendido";

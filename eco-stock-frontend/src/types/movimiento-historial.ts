@@ -6,6 +6,7 @@ export interface MovimientoHistorial {
   cantidad: number;
   usuarioRegistro: string;
   detalle: string;
+  [key: string]: unknown;
 }
 
 export type FiltroCompleto = 'todos' | 'entrada' | 'salida';
